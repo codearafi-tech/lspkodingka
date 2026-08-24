@@ -1,20 +1,54 @@
-import { Button } from "@/components/ui/button"
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import "./index.css";
+
+// Layout
+import PublicLayout from "./components/layout/PublicLayout";
+
+// Public Pages
+import Home from "./pages/public/Home";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+
+// Asesi Layout
+import Dashboard from "./pages/asesi/Dashboard";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant",
+    });
+  }, [pathname]);
+
+  return null;
+}
 
 export function App() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <ScrollToTop></ScrollToTop>
+
+      {/* PUBLIC */}
+      <Routes>
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+
+        <Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
+
+        {/* ASESI */}
+        <Route>
+          <Route path="/asesi/dashboard" element={<Dashboard />}/>
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
