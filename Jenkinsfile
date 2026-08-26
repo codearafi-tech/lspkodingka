@@ -85,7 +85,7 @@ pipeline {
                     sh '''
                         RESPONSE_FILE=$(mktemp)
 
-                        HTTP_STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X GET "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_SERVICE_UUID}" \
+                        HTTP_STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X POST "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_SERVICE_UUID}" \
                             -H "Authorization: Bearer ${COOLIFY_API_TOKEN}")
 
                         echo "Coolify response (HTTP $HTTP_STATUS):"
