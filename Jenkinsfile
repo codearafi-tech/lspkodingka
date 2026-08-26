@@ -30,9 +30,9 @@ pipeline {
             steps {
                 script {
                     def packageJson = readJSON file: 'package.json'
-                    IMAGE_TAG = packageJson.version
-                    dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-                    currentBuild.displayName = "#${env.BUILD_NUMBER} - ${IMAGE_NAME}:${IMAGE_TAG}"
+                    env.IMAGE_TAG = packageJson.version
+                    dockerImage = docker.build("${IMAGE_NAME}:${env.IMAGE_TAG}")
+                    currentBuild.displayName = "#${env.BUILD_NUMBER} - ${IMAGE_NAME}:${env.IMAGE_TAG}"
                 }
             }
         }
@@ -52,10 +52,29 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: COOLIFY_CREDENTIALS, variable: 'COOLIFY_API_TOKEN')]) {
                     sh '''
-                        curl -sf -X PATCH "${COOLIFY_URL}/api/v1/services/${COOLIFY_SERVICE_UUID}/envs" \
+                        RESPONSE_FILE=$(mktemp)
+
+                        HTTP_STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X PATCH "${COOLIFY_URL}/api/v1/services/${COOLIFY_SERVICE_UUID}/envs" \
                             -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
                             -H "Content-Type: application/json" \
-                            -d "{\\"key\\": \\"IMAGE_TAG\\", \\"value\\": \\"${IMAGE_TAG}\\"}"
+                            -d "{\\"key\\": \\"IMAGE_TAG\\", \\"value\\": \\"${IMAGE_TAG}\\"}")
+
+                        if [ "$HTTP_STATUS" = "404" ]; then
+                            echo "IMAGE_TAG env var not found on Coolify service, creating it instead..."
+                            HTTP_STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X POST "${COOLIFY_URL}/api/v1/services/${COOLIFY_SERVICE_UUID}/envs" \
+                                -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
+                                -H "Content-Type: application/json" \
+                                -d "{\\"key\\": \\"IMAGE_TAG\\", \\"value\\": \\"${IMAGE_TAG}\\"}")
+                        fi
+
+                        echo "Coolify response (HTTP $HTTP_STATUS):"
+                        cat "$RESPONSE_FILE"
+                        echo
+                        rm -f "$RESPONSE_FILE"
+
+                        if [ "$HTTP_STATUS" -ge 400 ]; then
+                            exit 1
+                        fi
                     '''
                 }
             }
@@ -65,8 +84,19 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: COOLIFY_CREDENTIALS, variable: 'COOLIFY_API_TOKEN')]) {
                     sh '''
-                        curl -sf -X GET "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_SERVICE_UUID}" \
-                            -H "Authorization: Bearer ${COOLIFY_API_TOKEN}"
+                        RESPONSE_FILE=$(mktemp)
+
+                        HTTP_STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X GET "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_SERVICE_UUID}" \
+                            -H "Authorization: Bearer ${COOLIFY_API_TOKEN}")
+
+                        echo "Coolify response (HTTP $HTTP_STATUS):"
+                        cat "$RESPONSE_FILE"
+                        echo
+                        rm -f "$RESPONSE_FILE"
+
+                        if [ "$HTTP_STATUS" -ge 400 ]; then
+                            exit 1
+                        fi
                     '''
                 }
             }
