@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, User, LogOut } from "lucide-react";
 import {
     NavigationMenu,
     NavigationMenuList,
@@ -8,13 +8,28 @@ import {
     NavigationMenuLink,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"; // Pastikan komponen dropdown UI Anda sudah ada, atau sesuaikan
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [token, setToken] = useState<string | null>(null);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isHome = location.pathname === "/";
+
+    // Cek token setiap kali lokasi/halaman berubah atau komponen dimuat
+    useEffect(() => {
+        const storedToken = localStorage.getItem("token");
+        setToken(storedToken);
+    }, [location]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -41,6 +56,13 @@ export default function Navbar() {
         }
     }, [isOpen]);
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        setToken(null);
+        navigate("/login");
+    };
+
     const transparentMode = isHome && !isScrolled;
 
     const navLinks = [
@@ -51,7 +73,7 @@ export default function Navbar() {
 
     return (
         <>
-            {/* Navbar Utama: Disembunyikan di mobile (hidden md:block) saat drawer aktif agar tidak tumpang tindih */}
+            {/* Navbar Utama */}
             <nav
                 className={`fixed top-0 left-0 z-50 w-full px-6 md:px-16 py-3 transition-all duration-300 ${
                     isOpen ? "hidden md:block" : "block"
@@ -67,13 +89,11 @@ export default function Navbar() {
                         <img
                             src="/images/Logo.png"
                             alt="LSP Koding"
-                            className={`w-24 h-auto transition-all duration-300 ${
-                                transparentMode ? "brightness-0 invert" : "brightness-0 invert"
-                            }`}
+                            className={`w-24 h-auto transition-all duration-300 brightness-0 invert`}
                         />
                     </Link>
 
-                    {/* Menu Navigasi Desktop (Hidden di Mobile) */}
+                    {/* Menu Navigasi Desktop */}
                     <div className="hidden md:block">
                         <NavigationMenu>
                             <NavigationMenuList className="flex items-center">
@@ -93,12 +113,33 @@ export default function Navbar() {
                                 ))}
 
                                 <NavigationMenuItem>
-                                    <NavigationMenuLink
-                                        className={`${navigationMenuTriggerStyle()} bg-primary text-primary-foreground hover:bg-primary/90 hover:text-white ml-2`}
-                                        href="/login"
-                                    >
-                                        Masuk
-                                    </NavigationMenuLink>
+                                    {token ? (
+                                        /* Jika Sudah Login (Ada Token) -> Tampilkan Menu Profil / Dashboard */
+                                        <div className="ml-2 flex items-center gap-2">
+                                            <NavigationMenuLink
+                                                className={`${navigationMenuTriggerStyle()} rounded-sm bg-secondary text-secondary-foreground hover:bg-secondary/80 flex items-center gap-2`}
+                                                href="/asesi/dashboard"
+                                            >
+                                                <User className="w-4 h-4" />
+                                                <span>Dashboard</span>
+                                            </NavigationMenuLink>
+                                            <button
+                                                onClick={handleLogout}
+                                                title="Keluar"
+                                                className="p-2 text-white hover:bg-white/20 rounded-md transition-colors cursor-pointer"
+                                            >
+                                                <LogOut className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        /* Jika Belum Login -> Tampilkan Tombol Masuk */
+                                        <NavigationMenuLink
+                                            className={`${navigationMenuTriggerStyle()} rounded-sm bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] ml-2`}
+                                            href="/login"
+                                        >
+                                            Masuk
+                                        </NavigationMenuLink>
+                                    )}
                                 </NavigationMenuItem>
                             </NavigationMenuList>
                         </NavigationMenu>
@@ -107,11 +148,7 @@ export default function Navbar() {
                     {/* Tombol Hamburger Mobile */}
                     <button
                         onClick={() => setIsOpen(true)}
-                        className={`md:hidden relative z-50 p-2 rounded-lg transition-colors ${
-                            transparentMode
-                                ? "text-white hover:bg-white/20"
-                                : "text-white hover:bg-neutral-100"
-                        }`}
+                        className={`md:hidden relative z-50 p-2 rounded-lg transition-colors text-white hover:bg-white/20`}
                         aria-label="Open Menu"
                     >
                         <Menu className="w-6 h-6" />
@@ -127,7 +164,7 @@ export default function Navbar() {
                 }`}
             />
 
-            {/* Sidebar Drawer dari Kanan ke Kiri */}
+            {/* Sidebar Drawer Mobile */}
             <div
                 className={`fixed top-0 right-0 z-50 h-full w-[75%] max-w-xs bg-white shadow-2xl p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out md:hidden ${
                     isOpen ? "translate-x-0" : "translate-x-full"
@@ -158,13 +195,25 @@ export default function Navbar() {
                     </div>
                 </div>
 
-                <div className="pb-6">
-                    <Link
-                        to="/login"
-                        className="w-full flex items-center justify-center py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-medium"
-                    >
-                        Masuk
-                    </Link>
+                <div className="pb-6 flex gap-2">
+                    {token ? (
+                        <>
+                            <Link
+                                to="/asesi/dashboard"
+                                className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-medium"
+                            >
+                                <User className="w-4 h-4" />
+                                <span>Dashboard Asesi</span>
+                            </Link>
+                        </>
+                    ) : (
+                        <Link
+                            to="/login"
+                            className="w-full flex items-center justify-center py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-medium"
+                        >
+                            Masuk
+                        </Link>
+                    )}
                 </div>
             </div>
         </>

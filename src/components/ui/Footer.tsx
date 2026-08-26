@@ -11,7 +11,7 @@ export default function Footer() {
                     <div className="text-2xl font-medium">LSP KODINGKA</div>
                     <p className="text-white/70 text-sm leading-relaxed max-w-xs">
                         Lembaga Sertifikasi Profesi yang berkomitmen memvalidasi kompetensi
-                        tenaga kerja Indonesia di bidang teknologi informasi.
+                        tenaga kerja Indonesia di bidang teknologi digital.
                     </p>
                 </div>
 

@@ -84,14 +84,13 @@ export default function Register() {
 
         const selectedProv = provinces.find((p) => p.name === provName);
         if (selectedProv) {
-            // Gunakan provinceCode sesuai dokumentasi Swagger
             axios.get(`${apiUrl}/region/regencies?provinceCode=${selectedProv.code}`)
                 .then((res) => setRegencies(res.data.data || res.data))
                 .catch((err) => console.error("Gagal memuat data kota", err));
         }
     };
 
-    // 3. Filter Kecamatan berdasarkan regencyCode (atau parameter yang sesuai di Swagger)
+    // 3. Filter Kecamatan berdasarkan regencyCode
     const handleRegencyChange = (regName: string) => {
         setKota(regName);
         setKecamatan("");
@@ -101,14 +100,13 @@ export default function Register() {
 
         const selectedReg = regencies.find((r) => r.name === regName);
         if (selectedReg) {
-            // Sesuaikan parameter query (biasanya regencyCode / cityCode)
             axios.get(`${apiUrl}/region/districts?regencyCode=${selectedReg.code}`)
                 .then((res) => setDistricts(res.data.data || res.data))
                 .catch((err) => console.error("Gagal memuat data kecamatan", err));
         }
     };
 
-    // 4. Filter Kelurahan berdasarkan districtCode (atau parameter yang sesuai di Swagger)
+    // 4. Filter Kelurahan berdasarkan districtCode
     const handleDistrictChange = (distName: string) => {
         setKecamatan(distName);
         setKelurahan("");
@@ -116,14 +114,13 @@ export default function Register() {
 
         const selectedDist = districts.find((d) => d.name === distName);
         if (selectedDist) {
-            // Sesuaikan parameter query
             axios.get(`${apiUrl}/region/villages?districtCode=${selectedDist.code}`)
                 .then((res) => setVillages(res.data.data || res.data))
                 .catch((err) => console.error("Gagal memuat data kelurahan", err));
         }
     };
 
-    // Handler NIK (Hanya Angka & Max 16 Digit)
+    // Handler NIK
     const handleNikChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value.replace(/\D/g, "");
         if (val.length <= 16) {
@@ -171,7 +168,6 @@ export default function Register() {
 
         try {
             const response = await axios.post(`${apiUrl}/auth/register`, payload);
-
             console.log("Register berhasil:", response.data);
             setSuccessMessage("Registrasi berhasil!");
 
@@ -180,7 +176,6 @@ export default function Register() {
             } else {
                 navigate('/asesi/dashboard');
             }
-
         } catch (err: any) {
             console.error("Error register:", err.response?.data || err.message);
             setErrorMessage(err.response?.data?.message || "Terjadi kesalahan saat mendaftar.");
@@ -211,41 +206,34 @@ export default function Register() {
     ];
 
     return (
-        <div className="min-h-screen flex w-full">
-            {/* Bagian Kiri: Banner */}
-            <section className="flex-1 hidden lg:block lg:w-2/5 sticky top-0 h-screen bg-linear-to-br from-sky-900 via-sky-950 to-blue-950 overflow-hidden">
-                <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size[20px_20px]"></div>
-                <div className="absolute top-12 left-12 right-12 z-10">
-                    <div className="text-white/90 text-sm font-semibold tracking-wider">LSP KODINGKA</div>
+        <div className="min-h-screen w-full flex flex-col bg-background">
+            <div className="p-8 pb-0">
+                <div className="max-w-4xl flex items-center">
+                    <img
+                        src="/images/Logo.png"
+                        alt="LSP KODINGKA LOGO"
+                        className="h-10 w-auto object-contain"
+                    />
                 </div>
-                <div className="absolute bottom-12 left-12 right-12 z-10">
-                    <p className="text-white text-5xl leading-snug font-medium font-serif">
-                        Validasi Kompetensi <br /> Melalui Sertifikasi
-                    </p>
-                </div>
-            </section>
+            </div>
 
-            {/* Bagian Kanan: Form */}
-            <section className="flex-1 flex px-8 py-12 items-center justify-center bg-background overflow-y-auto">
-                <div className="flex flex-col gap-6 w-full max-w-lg">
-                    <div className="flex items-center">
-                        <img src="/images/Logo.png" alt="LSP KODINGKA LOGO" className="h-10 w-auto object-contain" />
-                    </div>
-
+            <section className="flex-1 flex px-8 py-8 items-center justify-center overflow-y-auto">
+                {/* Lebar container diperbesar dari max-w-lg menjadi max-w-4xl agar leluasa ke samping */}
+                <div className="flex flex-col gap-6 w-full max-w-4xl sm:p-10">
                     <div>
-                        <h4 className="text-xl tracking-tight font-semibold">Buat Akun Baru</h4>
+                        <h4 className="text-2xl tracking-tight font-semibold">Buat Akun Baru</h4>
                         <p className="text-sm text-gray-500 mt-1">Lengkapi data diri Anda untuk mendaftar.</p>
                     </div>
 
                     <form onSubmit={handleRegister}>
                         <FieldGroup>
                             {errorMessage && (
-                                <div className="p-3 mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                                <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                                     {errorMessage}
                                 </div>
                             )}
                             {successMessage && (
-                                <div className="p-3 mb-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                                <div className="p-3 mb-4 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
                                     {successMessage}
                                 </div>
                             )}
@@ -253,22 +241,20 @@ export default function Register() {
                             {/* Pilih Role */}
                             <Field className="mb-4">
                                 <FieldLabel>Daftar Sebagai</FieldLabel>
-                                <div className="flex gap-4 mt-1">
+                                <div className="flex gap-4 mt-1 max-w-xs">
                                     <button
                                         type="button"
                                         onClick={() => setRole("asesi")}
-                                        className={`flex-1 py-2 border rounded-md font-medium text-sm transition ${role === "asesi" ? "bg-sky-700 text-white border-sky-600 shadow-xs" : "bg-background text-neutral-700 border-neutral-300 hover:bg-neutral-50"
-                                            }`}
+                                        className={`flex-1 py-2 border rounded-md font-medium text-sm transition ${role === "asesi" ? "bg-sky-900 text-primary-foreground shadow-xs" : "bg-background text-neutral-700 border-neutral-300 hover:bg-neutral-50"}`}
                                     >
                                         Asesi
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setRole("asesor")}
-                                        className={`flex-1 py-2 border rounded-md font-medium text-sm transition ${role === "asesor" ? "bg-sky-700 text-white border-sky-600 shadow-xs" : "bg-background text-neutral-700 border-neutral-300 hover:bg-neutral-50"
-                                            }`}
+                                        className={`flex-1 py-2 border rounded-md font-medium text-sm transition ${role === "asesor" ? "bg-sky-900 text-primary-foreground shadow-xs" : "bg-background text-neutral-700 border-neutral-300 hover:bg-neutral-50"}`}
                                     >
-                                        Asesor
+                                        Lembaga
                                     </button>
                                 </div>
                             </Field>
@@ -286,42 +272,44 @@ export default function Register() {
                                 </div>
                             )}
 
-                            {/* Data Akun */}
+                            {/* 1. Data Akun (2 Kolom) */}
                             <div className="space-y-4 border-t border-neutral-200 pt-4">
                                 <h5 className="text-sm font-semibold text-neutral-800">1. Data Akun</h5>
-                                <Field>
-                                    <FieldLabel>Email</FieldLabel>
-                                    <Input type="email" placeholder="example@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                                </Field>
-                                <Field>
-                                    <FieldLabel>Password</FieldLabel>
-                                    <InputGroup>
-                                        <InputGroupInput
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="Minimal 8 karakter"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                        />
-                                        <InputGroupAddon align="inline-end">
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-muted-foreground hover:text-foreground focus:outline-none cursor-pointer mr-1" tabIndex={-1}>
-                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                            </button>
-                                        </InputGroupAddon>
-                                    </InputGroup>
-                                </Field>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel>Email</FieldLabel>
+                                        <Input type="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel>Password</FieldLabel>
+                                        <InputGroup>
+                                            <InputGroupInput
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Minimal 8 karakter"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                required
+                                            />
+                                            <InputGroupAddon align="inline-end">
+                                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-muted-foreground hover:text-foreground focus:outline-none cursor-pointer mr-1" tabIndex={-1}>
+                                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </InputGroupAddon>
+                                        </InputGroup>
+                                    </Field>
+                                </div>
                             </div>
 
-                            {/* Data Pribadi */}
+                            {/* 2. Data Pribadi (3 Kolom di layar besar agar melebar ke samping) */}
                             <div className="space-y-4 border-t border-neutral-200 pt-4 mt-4">
                                 <h5 className="text-sm font-semibold text-neutral-800">2. Data Pribadi</h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <Field>
                                         <FieldLabel>NIK</FieldLabel>
                                         <Input
                                             type="text"
                                             inputMode="numeric"
-                                            placeholder="Masukkan 16 Digit Angka"
+                                            placeholder="16 Digit Angka"
                                             value={nik}
                                             onChange={handleNikChange}
                                             required
@@ -386,18 +374,14 @@ export default function Register() {
                                 </div>
                             </div>
 
-                            {/* Alamat Sesuai KTP */}
+                            {/* 3. Alamat Sesuai KTP (Grid Layout Menyamping) */}
                             <div className="space-y-4 border-t border-neutral-200 pt-4 mt-4">
                                 <h5 className="text-sm font-semibold text-neutral-800">3. Alamat Sesuai KTP</h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                     {/* Provinsi */}
                                     <Field>
                                         <FieldLabel>Provinsi</FieldLabel>
-                                        <Select
-                                            value={provinsi}
-                                            onValueChange={(val) => handleProvinceChange(val ?? "")}
-                                        >
+                                        <Select value={provinsi} onValueChange={(val) => handleProvinceChange(val ?? "")}>
                                             <SelectTrigger><SelectValue placeholder="Pilih Provinsi..." /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
@@ -412,11 +396,8 @@ export default function Register() {
                                     {/* Kota / Kabupaten */}
                                     <Field>
                                         <FieldLabel>Kota / Kabupaten</FieldLabel>
-                                        <Select
-                                            value={kota}
-                                            onValueChange={(val) => handleRegencyChange(val ?? "")}
-                                        >
-                                            <SelectTrigger><SelectValue placeholder={provinsi ? "Pilih Kota/Kabupaten..." : "Pilih provinsi dulu"} /></SelectTrigger>
+                                        <Select value={kota} onValueChange={(val) => handleRegencyChange(val ?? "")}>
+                                            <SelectTrigger><SelectValue placeholder={provinsi ? "Pilih Kota/Kab..." : "Pilih provinsi dulu"} /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
                                                     {regencies.map((r, index) => (
@@ -430,10 +411,7 @@ export default function Register() {
                                     {/* Kecamatan */}
                                     <Field>
                                         <FieldLabel>Kecamatan</FieldLabel>
-                                        <Select
-                                            value={kecamatan}
-                                            onValueChange={(val) => handleDistrictChange(val ?? "")}
-                                        >
+                                        <Select value={kecamatan} onValueChange={(val) => handleDistrictChange(val ?? "")}>
                                             <SelectTrigger><SelectValue placeholder={kota ? "Pilih Kecamatan..." : "Pilih kota dulu"} /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
@@ -448,11 +426,8 @@ export default function Register() {
                                     {/* Kelurahan / Desa */}
                                     <Field>
                                         <FieldLabel>Kelurahan / Desa</FieldLabel>
-                                        <Select
-                                            value={kelurahan}
-                                            onValueChange={(val) => setKelurahan(val ?? "")}
-                                        >
-                                            <SelectTrigger><SelectValue placeholder={kecamatan ? "Pilih Kelurahan/Desa..." : "Pilih kecamatan dulu"} /></SelectTrigger>
+                                        <Select value={kelurahan} onValueChange={(val) => setKelurahan(val ?? "")}>
+                                            <SelectTrigger><SelectValue placeholder={kecamatan ? "Pilih Kelurahan..." : "Pilih kecamatan dulu"} /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
                                                     {villages.map((v, index) => (
@@ -462,19 +437,18 @@ export default function Register() {
                                             </SelectContent>
                                         </Select>
                                     </Field>
+                                </div>
 
-                                    <div className="sm:col-span-2">
-                                        <Field>
-                                            <FieldLabel>Alamat Lengkap</FieldLabel>
-                                            <Input type="text" placeholder="Nama jalan, RT/RW, No. Rumah" value={alamatKtp} onChange={(e) => setAlamatKtp(e.target.value)} required />
-                                        </Field>
-                                    </div>
-
+                                <div className="mt-4">
+                                    <Field>
+                                        <FieldLabel>Alamat Lengkap</FieldLabel>
+                                        <Input type="text" placeholder="Nama jalan, RT/RW, No. Rumah" value={alamatKtp} onChange={(e) => setAlamatKtp(e.target.value)} required />
+                                    </Field>
                                 </div>
                             </div>
 
                             <Button type="submit" className="w-full mt-6 h-10" disabled={loading}>
-                            {loading ? (
+                                {loading ? (
                                     <span className="flex items-center gap-2">
                                         <Spinner className="w-4 h-4" />
                                         Memproses...
