@@ -8,13 +8,6 @@ import {
     NavigationMenuLink,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // Pastikan komponen dropdown UI Anda sudah ada, atau sesuaikan
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
