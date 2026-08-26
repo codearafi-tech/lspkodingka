@@ -6,7 +6,6 @@ pipeline {
         HARBOR_REGISTRY        = 'harbor.nawastralabs.com'
         HARBOR_REPOSITORY      = 'lsp/web'
         IMAGE_NAME             = "${HARBOR_REGISTRY}/${HARBOR_REPOSITORY}"
-        IMAGE_TAG              = "${env.BUILD_NUMBER}"
         HARBOR_CREDENTIALS     = 'harbor-credentials'    // Jenkins credentials ID (username/password or robot token) for Harbor
 
         COOLIFY_URL            = 'https://coolify.nawastralabs.com'
