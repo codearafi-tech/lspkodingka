@@ -8,6 +8,10 @@ pipeline {
         IMAGE_NAME             = "${HARBOR_REGISTRY}/${HARBOR_REPOSITORY}"
         IMAGE_TAG              = "${env.BUILD_NUMBER}"
         HARBOR_CREDENTIALS     = 'harbor-credentials'    // Jenkins credentials ID (username/password or robot token) for Harbor
+
+        COOLIFY_URL            = 'https://coolify.nawastralabs.com'
+        COOLIFY_SERVICE_UUID   = 'vxgi8g87njqcjywr4jgzphu1'
+        COOLIFY_CREDENTIALS    = 'coolify-api-token'      // Jenkins credentials ID (secret text) for the Coolify API token
     }
 
     options {
@@ -40,6 +44,30 @@ pipeline {
                         dockerImage.push("${IMAGE_TAG}")
                         dockerImage.push('latest')
                     }
+                }
+            }
+        }
+
+        stage('Update Coolify IMAGE_TAG') {
+            steps {
+                withCredentials([string(credentialsId: COOLIFY_CREDENTIALS, variable: 'COOLIFY_API_TOKEN')]) {
+                    sh '''
+                        curl -sf -X PATCH "${COOLIFY_URL}/api/v1/services/${COOLIFY_SERVICE_UUID}/envs" \
+                            -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
+                            -H "Content-Type: application/json" \
+                            -d "{\\"key\\": \\"IMAGE_TAG\\", \\"value\\": \\"${IMAGE_TAG}\\"}"
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy on Coolify') {
+            steps {
+                withCredentials([string(credentialsId: COOLIFY_CREDENTIALS, variable: 'COOLIFY_API_TOKEN')]) {
+                    sh '''
+                        curl -sf -X GET "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_SERVICE_UUID}" \
+                            -H "Authorization: Bearer ${COOLIFY_API_TOKEN}"
+                    '''
                 }
             }
         }
