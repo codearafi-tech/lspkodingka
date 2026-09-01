@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import {
     Field,
     FieldGroup,
@@ -40,8 +40,10 @@ export default function Login() {
             const resData = response.data;
             console.log("Login sukses response:", resData);
 
+            // Ekstraksi token & role dari struktur respons API yang fleksibel
             const accessToken = resData.accessToken || resData.access_token || resData.data?.accessToken || resData.data?.access_token;
             const refreshToken = resData.refreshToken || resData.refresh_token || resData.data?.refreshToken || resData.data?.refresh_token;
+            const userRole = resData.role || resData.data?.role || resData.user?.role;
 
             if (accessToken) {
                 localStorage.setItem("token", accessToken);
@@ -49,11 +51,22 @@ export default function Login() {
             if (refreshToken) {
                 localStorage.setItem("refreshToken", refreshToken);
             }
+            if (userRole) {
+                localStorage.setItem("role", userRole); 
+            }
 
-            navigate("/asesi/dashboard");
+            // Redirect berdasarkan role atau langsung ke dashboard umum
+            if (userRole?.toLowerCase() === "lembaga") {
+                navigate("/admin/dashboard");
+            } else if (userRole?.toLowerCase() === "asesor") {
+                navigate("/asesor/dashboard");
+            } else {
+                navigate("/asesi/dashboard");
+            }
 
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.message || "Email atau password salah.";
+        } catch (error: unknown) {
+            const err = error as AxiosError<{ message?: string }>;
+            const errorMsg = err.response?.data?.message || "Email atau password salah.";
             setErrorMessage(errorMsg);
         } finally {
             setLoading(false);
@@ -61,7 +74,7 @@ export default function Login() {
     };
 
     return (
-        <section className="min-h-screen  w-full p-6 bg-linear-to-br from-sky-50 via-background to-indigo-50/40">
+        <section className="min-h-screen w-full p-6 bg-linear-to-br from-sky-50 via-background to-indigo-50/40">
             <div className="flex flex-col gap-6 max-w-md md:mt-2 mx-auto my-auto border p-6 md:p-10 rounded-3xl bg-white shadow-xs">
                 <img
                     src="/images/Logo.png"
@@ -76,7 +89,6 @@ export default function Login() {
 
                 <form onSubmit={handleSubmit}>
                     <FieldGroup>
-                        {/* Kotak Pesan Error */}
                         {errorMessage && (
                             <div className="p-3 mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                                 {errorMessage}
@@ -156,7 +168,7 @@ export default function Login() {
                         </div>
 
                         <div>
-                            <Button className="bg-white text-foreground border-border hover:bg-secondary/30 h-10 w-full flex items-center justify-center gap-2 cursor-pointer">
+                            <Button type="button" className="bg-white text-foreground border-border hover:bg-secondary/30 h-10 w-full flex items-center justify-center gap-2 cursor-pointer">
                                 <img src="/images/SiapKerja.png" alt="siapkerja" className="w-4 h-4 object-contain" />
                                 <span>Masuk dengan SiapKerja</span>
                             </Button>

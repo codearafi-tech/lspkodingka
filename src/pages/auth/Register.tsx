@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { Turnstile } from '@marsidev/react-turnstile';
 import {
     Field,
     FieldGroup,
@@ -44,11 +45,15 @@ export default function Register() {
     const [noTelp, setNoTelp] = useState("");
     const [pic, setPic] = useState("");
 
+    // State untuk Cloudflare Turnstile Token
+    const [turnstileToken, setTurnstileToken] = useState("");
+
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_URL;
+    const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
     const handlePhoneNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value.replace(/\D/g, "");
@@ -63,6 +68,11 @@ export default function Register() {
 
         if (password !== confirmPassword) {
             setErrorMessage("Password dan Konfirmasi Password tidak cocok.");
+            return;
+        }
+
+        if (!turnstileToken) {
+            setErrorMessage("Silakan selesaikan verifikasi Cloudflare terlebih dahulu.");
             return;
         }
 
@@ -82,12 +92,14 @@ export default function Register() {
                     lspCode: kodeLsp,
                     phoneNumber: noTelp,
                     picName: pic,
+                    cfToken: turnstileToken, 
                 };
             } else {
                 endpoint = `${apiUrl}/auth/register`;
                 payload = {
                     email: email,
                     password: password,
+                    cfToken: turnstileToken,
                 };
             }
 
@@ -289,6 +301,16 @@ export default function Register() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Widget Cloudflare Turnstile */}
+                            <div className="flex justify-center my-4">
+                                <Turnstile
+                                    siteKey={turnstileSiteKey}
+                                    onSuccess={(token) => setTurnstileToken(token)}
+                                    onError={() => setTurnstileToken("")}
+                                    onExpire={() => setTurnstileToken("")}
+                                />
+                            </div>
 
                             <Button type="submit" className="w-full mt-4 h-10" disabled={loading}>
                                 {loading ? (
