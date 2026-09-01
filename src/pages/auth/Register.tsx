@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import {
     Field,
     FieldGroup,
     FieldLabel,
+    FieldContent,
+    FieldTitle,
+    FieldDescription,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +15,7 @@ import {
     InputGroupInput,
     InputGroupAddon
 } from "@/components/ui/input-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
     Select,
     SelectContent,
@@ -22,113 +26,30 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
 
 export default function Register() {
     const navigate = useNavigate();
-    const [role, setRole] = useState<"asesi" | "asesor">("asesi");
+    const [role, setRole] = useState<"asesi" | "lembaga">("asesi");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Data Pribadi
-    const [nik, setNik] = useState("");
-    const [namaLengkap, setNamaLengkap] = useState("");
-    const [tempatLahir, setTempatLahir] = useState("");
-    const [tanggalLahir, setTanggalLahir] = useState("");
-    const [jenisKelamin, setJenisKelamin] = useState("");
-    const [noTelp, setNoTelp] = useState("");
-    const [pendidikanTerakhir, setPendidikanTerakhir] = useState("");
-    const [pekerjaan, setPekerjaan] = useState("");
-
-    // State Wilayah
-    const [provinces, setProvinces] = useState<{ id?: string; code?: string; name: string }[]>([]);
-    const [regencies, setRegencies] = useState<{ id?: string; code?: string; name: string }[]>([]);
-    const [districts, setDistricts] = useState<{ id?: string; code?: string; name: string }[]>([]);
-    const [villages, setVillages] = useState<{ id?: string; code?: string; name: string }[]>([]);
-
-    const [provinsi, setProvinsi] = useState("");
-    const [kota, setKota] = useState("");
-    const [kecamatan, setKecamatan] = useState("");
-    const [kelurahan, setKelurahan] = useState("");
-    const [alamatKtp, setAlamatKtp] = useState("");
-
-    // Khusus Asesor
-    const [nomorMet, setNomorMet] = useState("");
+    // Khusus Lembaga
+    const [namaLsp, setNamaLsp] = useState("");
+    const [jenisLsp, setJenisLsp] = useState("");
     const [kodeLsp, setKodeLsp] = useState("");
+    const [noTelp, setNoTelp] = useState("");
+    const [pic, setPic] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_URL;
 
-    // 1. Ambil Data Provinsi
-    useEffect(() => {
-        axios.get(`${apiUrl}/region/provinces`)
-            .then((res) => {
-                setProvinces(res.data.data || res.data);
-            })
-            .catch((err) => console.error("Gagal memuat data provinsi", err));
-    }, [apiUrl]);
-
-    // 2. Filter Kota berdasarkan provinceCode
-    const handleProvinceChange = (provName: string) => {
-        setProvinsi(provName);
-        setKota("");
-        setKecamatan("");
-        setKelurahan("");
-        setRegencies([]);
-        setDistricts([]);
-        setVillages([]);
-
-        const selectedProv = provinces.find((p) => p.name === provName);
-        if (selectedProv) {
-            axios.get(`${apiUrl}/region/regencies?provinceCode=${selectedProv.code}`)
-                .then((res) => setRegencies(res.data.data || res.data))
-                .catch((err) => console.error("Gagal memuat data kota", err));
-        }
-    };
-
-    // 3. Filter Kecamatan berdasarkan regencyCode
-    const handleRegencyChange = (regName: string) => {
-        setKota(regName);
-        setKecamatan("");
-        setKelurahan("");
-        setDistricts([]);
-        setVillages([]);
-
-        const selectedReg = regencies.find((r) => r.name === regName);
-        if (selectedReg) {
-            axios.get(`${apiUrl}/region/districts?regencyCode=${selectedReg.code}`)
-                .then((res) => setDistricts(res.data.data || res.data))
-                .catch((err) => console.error("Gagal memuat data kecamatan", err));
-        }
-    };
-
-    // 4. Filter Kelurahan berdasarkan districtCode
-    const handleDistrictChange = (distName: string) => {
-        setKecamatan(distName);
-        setKelurahan("");
-        setVillages([]);
-
-        const selectedDist = districts.find((d) => d.name === distName);
-        if (selectedDist) {
-            axios.get(`${apiUrl}/region/villages?districtCode=${selectedDist.code}`)
-                .then((res) => setVillages(res.data.data || res.data))
-                .catch((err) => console.error("Gagal memuat data kelurahan", err));
-        }
-    };
-
-    // Handler NIK
-    const handleNikChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value.replace(/\D/g, "");
-        if (val.length <= 16) {
-            setNik(val);
-        }
-    };
-
-    // Handler nomor telpon
     const handlePhoneNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value.replace(/\D/g, "");
         if (val.length <= 14) {
@@ -138,44 +59,42 @@ export default function Register() {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
         setErrorMessage("");
-        setSuccessMessage("");
 
-        const payload: Record<string, any> = {
-            role: role,
-            email: email,
-            password: password,
-            nationalId: nik,
-            fullName: namaLengkap,
-            placeOfBirth: tempatLahir,
-            dateOfBirth: tanggalLahir,
-            gender: jenisKelamin,
-            phoneNumber: noTelp,
-            lastEducation: pendidikanTerakhir,
-            occupation: pekerjaan,
-            province: provinsi,
-            cityOrRegency: kota,
-            district: kecamatan,
-            village: kelurahan,
-            addressDetail: alamatKtp,
-        };
-
-        if (role === 'asesor') {
-            payload.metNumber = nomorMet;
-            payload.lspCode = kodeLsp;
+        if (password !== confirmPassword) {
+            setErrorMessage("Password dan Konfirmasi Password tidak cocok.");
+            return;
         }
 
-        try {
-            const response = await axios.post(`${apiUrl}/auth/register`, payload);
-            console.log("Register berhasil:", response.data);
-            setSuccessMessage("Registrasi berhasil!");
+        setLoading(true);
 
-            if (role === 'asesor') {
-                navigate('/asesor/dashboard');
+        try {
+            let endpoint = "";
+            let payload: Record<string, any> = {};
+
+            if (role === 'lembaga') {
+                endpoint = `${apiUrl}/auth/register/lembaga`;
+                payload = {
+                    email: email,
+                    password: password,
+                    institutionName: namaLsp,
+                    lspType: jenisLsp,
+                    lspCode: kodeLsp,
+                    phoneNumber: noTelp,
+                    picName: pic,
+                };
             } else {
-                navigate('/asesi/dashboard');
+                endpoint = `${apiUrl}/auth/register`;
+                payload = {
+                    email: email,
+                    password: password,
+                };
             }
+
+            const response = await axios.post(endpoint, payload);
+            console.log("Register berhasil:", response.data);
+            setIsSubmitted(true);
+
         } catch (err: any) {
             console.error("Error register:", err.response?.data || err.message);
             setErrorMessage(err.response?.data?.message || "Terjadi kesalahan saat mendaftar.");
@@ -184,45 +103,49 @@ export default function Register() {
         }
     };
 
-    const jenis_Kelamin = [
-        { label: "Laki-Laki", value: "Laki-Laki" },
-        { label: "Perempuan", value: "Perempuan" },
+    const jenis_Lsp_List = [
+        { label: "P1", value: "p1" },
+        { label: "P2", value: "p2" },
+        { label: "P3", value: "p3" },
     ];
 
-    const pendidikan_Terakhir = [
-        { label: "SMA / SMK / Sederajat", value: "SMA/SMK" },
-        { label: "D3", value: "D3" },
-        { label: "S1 / D4", value: "S1" },
-        { label: "S2", value: "S2" },
-        { label: "S3", value: "S3" },
-    ];
-
-    const pekerjaan_List = [
-        { label: "Mahasiswa / Pelajar", value: "Mahasiswa" },
-        { label: "Pegawai Swasta", value: "Pegawai Swasta" },
-        { label: "PNS / BUMN", value: "PNS" },
-        { label: "Wiraswasta", value: "Wiraswasta" },
-        { label: "Lainnya", value: "Lainnya" },
-    ];
+    // Tampilan setelah berhasil register (Instruksi Cek Email)
+    if (isSubmitted) {
+        return (
+            <div className="min-h-screen w-full flex flex-col bg-linear-to-br from-sky-50 via-background to-indigo-50/40 items-center justify-center p-4">
+                <div className="flex flex-col gap-6 w-full max-w-md p-8 border rounded-3xl bg-white shadow-xs text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                        <Mail className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <h4 className="text-xl tracking-tight font-semibold text-neutral-900">Cek Email Anda</h4>
+                        <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                            Kami telah mengirimkan tautan verifikasi ke <span className="font-medium text-neutral-700">{email}</span>. Silakan periksa inbox atau folder spam Anda.
+                        </p>
+                    </div>
+                    <Button 
+                        onClick={() => navigate('/login')} 
+                        className="w-full mt-2 h-10"
+                    >
+                        Kembali ke Halaman Masuk
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen w-full flex flex-col bg-background">
-            <div className="p-8 pb-0">
-                <div className="max-w-4xl flex items-center">
+        <div className="min-h-screen w-full flex flex-col bg-linear-to-br from-sky-50 via-background to-indigo-50/40">
+            <section className="flex-1 flex px-4 py-4 md:px-8 md:py-8 items-center justify-center overflow-y-auto">
+                <div className="flex flex-col gap-6 w-full max-w-xl p-6 md:p-10 border rounded-3xl bg-white shadow-xs">
                     <img
                         src="/images/Logo.png"
                         alt="LSP KODINGKA LOGO"
                         className="h-10 w-auto object-contain"
                     />
-                </div>
-            </div>
-
-            <section className="flex-1 flex px-8 py-8 items-center justify-center overflow-y-auto">
-                {/* Lebar container diperbesar dari max-w-lg menjadi max-w-4xl agar leluasa ke samping */}
-                <div className="flex flex-col gap-6 w-full max-w-4xl sm:p-10">
                     <div>
-                        <h4 className="text-2xl tracking-tight font-semibold">Buat Akun Baru</h4>
-                        <p className="text-sm text-gray-500 mt-1">Lengkapi data diri Anda untuk mendaftar.</p>
+                        <h4 className="text-2xl tracking-tight font-medium text-center">Buat Akun Baru</h4>
+                        <p className="text-sm text-gray-500 mt-1 text-center">Lengkapi informasi untuk mendaftar sebagai {role === "asesi" ? "Asesi" : "Lembaga"}.</p>
                     </div>
 
                     <form onSubmit={handleRegister}>
@@ -232,222 +155,142 @@ export default function Register() {
                                     {errorMessage}
                                 </div>
                             )}
-                            {successMessage && (
-                                <div className="p-3 mb-4 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
-                                    {successMessage}
-                                </div>
-                            )}
 
                             {/* Pilih Role */}
-                            <Field className="mb-4">
-                                <FieldLabel>Daftar Sebagai</FieldLabel>
-                                <div className="flex gap-4 mt-1 max-w-xs">
-                                    <button
-                                        type="button"
-                                        onClick={() => setRole("asesi")}
-                                        className={`flex-1 py-2 border rounded-md font-medium text-sm transition ${role === "asesi" ? "bg-sky-900 text-primary-foreground shadow-xs" : "bg-background text-neutral-700 border-neutral-300 hover:bg-neutral-50"}`}
+                            <Field className="mb-6">
+                                <FieldLabel className="text-sm font-semibold text-neutral-800">Daftar Sebagai</FieldLabel>
+                                <RadioGroup value={role} onValueChange={(val: any) => setRole(val)} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {/* Pilihan Asesi */}
+                                    <FieldLabel
+                                        htmlFor="role-asesi"
+                                        className={`cursor-pointer transition-all duration-200 ${role === "asesi"
+                                            ? "border-sky-700 bg-sky-50/40 shadow-xs"
+                                            : "border-neutral-200 hover:border-neutral-300 bg-background"
+                                            }`}
                                     >
-                                        Asesi
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setRole("asesor")}
-                                        className={`flex-1 py-2 border rounded-md font-medium text-sm transition ${role === "asesor" ? "bg-sky-900 text-primary-foreground shadow-xs" : "bg-background text-neutral-700 border-neutral-300 hover:bg-neutral-50"}`}
+                                        <Field orientation="horizontal" className="items-center justify-between w-full">
+                                            <FieldContent>
+                                                <FieldTitle>Asesi</FieldTitle>
+                                                <FieldDescription>
+                                                    Peserta sertifikasi
+                                                </FieldDescription>
+                                            </FieldContent>
+                                            <RadioGroupItem value="asesi" id="role-asesi" />
+                                        </Field>
+                                    </FieldLabel>
+
+                                    {/* Pilihan Lembaga */}
+                                    <FieldLabel
+                                        htmlFor="role-lembaga"
+                                        className={`cursor-pointer transition-all duration-200 ${role === "lembaga"
+                                            ? "border-sky-700 bg-sky-50/40 shadow-xs"
+                                            : "border-neutral-200 hover:border-neutral-300 bg-background"
+                                            }`}
                                     >
-                                        Lembaga
-                                    </button>
-                                </div>
+                                        <Field orientation="horizontal">
+                                            <FieldContent>
+                                                <FieldTitle>Lembaga</FieldTitle>
+                                                <FieldDescription>
+                                                    LSP pengelola.
+                                                </FieldDescription>
+                                            </FieldContent>
+                                            <RadioGroupItem value="lembaga" id="role-lembaga" />
+                                        </Field>
+                                    </FieldLabel>
+
+                                </RadioGroup>
                             </Field>
 
-                            {role === "asesor" && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 mb-4 bg-blue-50/50 border border-blue-100 rounded-lg">
+                            {/* Data Akun Dasar */}
+                            <div className="space-y-4">
+                                <Field>
+                                    <FieldLabel>Email Lembaga</FieldLabel>
+                                    <Input type="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                                </Field>
+
+                                <Field>
+                                    <FieldLabel>Password</FieldLabel>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Minimal 8 karakter"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                        />
+                                        <InputGroupAddon align="inline-end">
+                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-muted-foreground hover:text-foreground focus:outline-none cursor-pointer mr-1" tabIndex={-1}>
+                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                </Field>
+
+                                <Field>
+                                    <FieldLabel>Konfirmasi Password</FieldLabel>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            placeholder="Ulangi password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            required
+                                        />
+                                        <InputGroupAddon align="inline-end">
+                                            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="text-muted-foreground hover:text-foreground focus:outline-none cursor-pointer mr-1" tabIndex={-1}>
+                                                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                </Field>
+                            </div>
+
+                            {/* Khusus Lembaga */}
+                            {role === "lembaga" && (
+                                <div className="space-y-4 border-t border-neutral-200 pt-4 mt-4">
+                                    <h5 className="text-sm font-semibold text-neutral-800">Informasi Lembaga</h5>
+
                                     <Field>
-                                        <FieldLabel>Nomor MET</FieldLabel>
-                                        <Input type="text" placeholder="Nomor MET" value={nomorMet} onChange={(e) => setNomorMet(e.target.value)} required />
+                                        <FieldLabel>Nama LSP</FieldLabel>
+                                        <Input type="text" placeholder="Nama Lembaga Sertifikasi Profesi" value={namaLsp} onChange={(e) => setNamaLsp(e.target.value)} required />
                                     </Field>
-                                    <Field>
-                                        <FieldLabel>Kode LSP</FieldLabel>
-                                        <Input type="text" placeholder="Kode LSP" value={kodeLsp} onChange={(e) => setKodeLsp(e.target.value)} required />
-                                    </Field>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <Field>
+                                            <FieldLabel>Jenis LSP</FieldLabel>
+                                            <Select value={jenisLsp} onValueChange={(val) => setJenisLsp(val ?? "")}>
+                                                <SelectTrigger><SelectValue placeholder="Pilih Jenis LSP" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {jenis_Lsp_List.map((item) => (
+                                                            <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+
+                                        <Field>
+                                            <FieldLabel>Kode LSP</FieldLabel>
+                                            <Input type="text" placeholder="Kode LSP" value={kodeLsp} onChange={(e) => setKodeLsp(e.target.value)} required />
+                                        </Field>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <Field>
+                                            <FieldLabel>Nomor Telepon</FieldLabel>
+                                            <Input type="tel" placeholder="08xxxxxxxxxx" value={noTelp} onChange={handlePhoneNumber} required />
+                                        </Field>
+
+                                        <Field>
+                                            <FieldLabel>PIC (Person in Charge)</FieldLabel>
+                                            <Input type="text" placeholder="Nama Penanggung Jawab" value={pic} onChange={(e) => setPic(e.target.value)} required />
+                                        </Field>
+                                    </div>
                                 </div>
                             )}
 
-                            {/* 1. Data Akun (2 Kolom) */}
-                            <div className="space-y-4 border-t border-neutral-200 pt-4">
-                                <h5 className="text-sm font-semibold text-neutral-800">1. Data Akun</h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Field>
-                                        <FieldLabel>Email</FieldLabel>
-                                        <Input type="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>Password</FieldLabel>
-                                        <InputGroup>
-                                            <InputGroupInput
-                                                type={showPassword ? "text" : "password"}
-                                                placeholder="Minimal 8 karakter"
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                required
-                                            />
-                                            <InputGroupAddon align="inline-end">
-                                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-muted-foreground hover:text-foreground focus:outline-none cursor-pointer mr-1" tabIndex={-1}>
-                                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                                </button>
-                                            </InputGroupAddon>
-                                        </InputGroup>
-                                    </Field>
-                                </div>
-                            </div>
-
-                            {/* 2. Data Pribadi (3 Kolom di layar besar agar melebar ke samping) */}
-                            <div className="space-y-4 border-t border-neutral-200 pt-4 mt-4">
-                                <h5 className="text-sm font-semibold text-neutral-800">2. Data Pribadi</h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <Field>
-                                        <FieldLabel>NIK</FieldLabel>
-                                        <Input
-                                            type="text"
-                                            inputMode="numeric"
-                                            placeholder="16 Digit Angka"
-                                            value={nik}
-                                            onChange={handleNikChange}
-                                            required
-                                        />
-                                        <span className="text-[11px] text-neutral-400 mt-0.5">{nik.length}/16 digit</span>
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>Nama Lengkap</FieldLabel>
-                                        <Input type="text" placeholder="Sesuai KTP" value={namaLengkap} onChange={(e) => setNamaLengkap(e.target.value)} required />
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>Tempat Lahir</FieldLabel>
-                                        <Input type="text" placeholder="Kota kelahiran" value={tempatLahir} onChange={(e) => setTempatLahir(e.target.value)} required />
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>Tanggal Lahir</FieldLabel>
-                                        <Input type="date" value={tanggalLahir} onChange={(e) => setTanggalLahir(e.target.value)} required />
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>Jenis Kelamin</FieldLabel>
-                                        <Select items={jenis_Kelamin} value={jenisKelamin} onValueChange={(val) => setJenisKelamin(val ?? "")}>
-                                            <SelectTrigger><SelectValue placeholder="Pilih Jenis Kelamin" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {jenis_Kelamin.map((jenis) => (
-                                                        <SelectItem key={jenis.value} value={jenis.value}>{jenis.label}</SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>No. Telepon / WhatsApp</FieldLabel>
-                                        <Input type="tel" placeholder="08xxxxxxxxxx" value={noTelp} onChange={handlePhoneNumber} required />
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>Pendidikan Terakhir</FieldLabel>
-                                        <Select items={pendidikan_Terakhir} value={pendidikanTerakhir} onValueChange={(val) => setPendidikanTerakhir(val ?? "")}>
-                                            <SelectTrigger><SelectValue placeholder="Pilih Pendidikan" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {pendidikan_Terakhir.map((p) => (
-                                                        <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel>Pekerjaan</FieldLabel>
-                                        <Select items={pekerjaan_List} value={pekerjaan} onValueChange={(val) => setPekerjaan(val ?? "")}>
-                                            <SelectTrigger><SelectValue placeholder="Pilih Pekerjaan" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {pekerjaan_List.map((item) => (
-                                                        <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </Field>
-                                </div>
-                            </div>
-
-                            {/* 3. Alamat Sesuai KTP (Grid Layout Menyamping) */}
-                            <div className="space-y-4 border-t border-neutral-200 pt-4 mt-4">
-                                <h5 className="text-sm font-semibold text-neutral-800">3. Alamat Sesuai KTP</h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    {/* Provinsi */}
-                                    <Field>
-                                        <FieldLabel>Provinsi</FieldLabel>
-                                        <Select value={provinsi} onValueChange={(val) => handleProvinceChange(val ?? "")}>
-                                            <SelectTrigger><SelectValue placeholder="Pilih Provinsi..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {provinces.map((p, index) => (
-                                                        <SelectItem key={p.code || index} value={p.name}>{p.name}</SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </Field>
-
-                                    {/* Kota / Kabupaten */}
-                                    <Field>
-                                        <FieldLabel>Kota / Kabupaten</FieldLabel>
-                                        <Select value={kota} onValueChange={(val) => handleRegencyChange(val ?? "")}>
-                                            <SelectTrigger><SelectValue placeholder={provinsi ? "Pilih Kota/Kab..." : "Pilih provinsi dulu"} /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {regencies.map((r, index) => (
-                                                        <SelectItem key={r.code || index} value={r.name}>{r.name}</SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </Field>
-
-                                    {/* Kecamatan */}
-                                    <Field>
-                                        <FieldLabel>Kecamatan</FieldLabel>
-                                        <Select value={kecamatan} onValueChange={(val) => handleDistrictChange(val ?? "")}>
-                                            <SelectTrigger><SelectValue placeholder={kota ? "Pilih Kecamatan..." : "Pilih kota dulu"} /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {districts.map((d) => (
-                                                        <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </Field>
-
-                                    {/* Kelurahan / Desa */}
-                                    <Field>
-                                        <FieldLabel>Kelurahan / Desa</FieldLabel>
-                                        <Select value={kelurahan} onValueChange={(val) => setKelurahan(val ?? "")}>
-                                            <SelectTrigger><SelectValue placeholder={kecamatan ? "Pilih Kelurahan..." : "Pilih kecamatan dulu"} /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {villages.map((v, index) => (
-                                                        <SelectItem key={v.code || index} value={v.name}>{v.name}</SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </Field>
-                                </div>
-
-                                <div className="mt-4">
-                                    <Field>
-                                        <FieldLabel>Alamat Lengkap</FieldLabel>
-                                        <Input type="text" placeholder="Nama jalan, RT/RW, No. Rumah" value={alamatKtp} onChange={(e) => setAlamatKtp(e.target.value)} required />
-                                    </Field>
-                                </div>
-                            </div>
-
-                            <Button type="submit" className="w-full mt-6 h-10" disabled={loading}>
+                            <Button type="submit" className="w-full mt-4 h-10" disabled={loading}>
                                 {loading ? (
                                     <span className="flex items-center gap-2">
                                         <Spinner className="w-4 h-4" />
@@ -458,8 +301,20 @@ export default function Register() {
                                 )}
                             </Button>
 
-                            <div className="text-center text-sm text-neutral-500 mt-4">
-                                Sudah punya akun? <a href="/login" className="text-blue-500 font-medium hover:underline">Masuk</a>
+                            <div className="text-center text-sm text-neutral-500">
+                                Sudah punya akun? <a href="/login" className="text-sky-700 font-medium hover:underline">Masuk</a>
+                            </div>
+
+                            <div className="text-center text-xs text-neutral-400 px-4">
+                                Dengan mendaftar, kamu menyetujui{" "}
+                                <a href="/terms" className="underline hover:text-neutral-600">
+                                    Syarat & Ketentuan
+                                </a>{" "}
+                                serta{" "}
+                                <a href="/privacy" className="underline hover:text-neutral-600">
+                                    Kebijakan Privasi
+                                </a>
+                                .
                             </div>
                         </FieldGroup>
                     </form>

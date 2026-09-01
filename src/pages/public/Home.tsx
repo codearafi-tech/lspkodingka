@@ -277,7 +277,7 @@ export default function Home() {
 
                         <div className="self-end text-xs font-semibold text-slate-400 z-10">01</div>
                         <div className="relative z-10">
-                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-900">
+                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
                                 <MailBadge size={24} />
                             </div>
                             <h4 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Sertifikat Resmi</h4>
@@ -290,7 +290,7 @@ export default function Home() {
                         <div className="absolute inset-0 bg-linear-to-tr from-sky-100/60 via-transparent to-transparent pointer-events-none" />
                         <div className="self-end text-xs font-semibold text-slate-400">02</div>
                         <div className="relative z-10">
-                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-900">
+                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
                                 <BrainCircuit size={24}></BrainCircuit>
                             </div>
                             <h4 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Proses Cepat & Transparan</h4>
@@ -305,7 +305,7 @@ export default function Home() {
 
                         <div className="self-end text-xs font-semibold text-slate-400 z-10">03</div>
                         <div className="relative z-10">
-                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-900">
+                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
                                 <ScrollText size={24}></ScrollText>
                             </div>
                             <h4 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Kurikulum Industri</h4>
