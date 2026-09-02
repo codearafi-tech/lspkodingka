@@ -1,64 +1,85 @@
-import { Mail, MapPin } from "lucide-react";
+import { FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube } from "react-icons/fa6";
+import { MapPin, Mail } from "lucide-react";
 
 export default function Footer() {
-    const currentYear = new Date().getFullYear();
-
     return (
-        <footer className="bg-linear-to-br from-sky-900 via-sky-950 to-blue-950 text-white mt-10 py-12 px-6 md:px-16">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                {/* Kolom 1: Logo & Deskripsi */}
-                <div className="flex flex-col gap-4">
-                    <div className="text-2xl font-medium">LSP KODINGKA</div>
-                    <p className="text-white/70 text-sm leading-relaxed max-w-xs">
-                        Lembaga Sertifikasi Profesi yang berkomitmen memvalidasi kompetensi
-                        tenaga kerja Indonesia di bidang teknologi digital.
+        <footer className="px-6 py-12 md:px-20 border-t border-neutral-200 bg-white">
+            {/* Grid Utama */}
+            <img src="/images/Logo-transparent.svg" alt="Logo LSP" className="w-10 h-auto" />
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-neutral-200 mt-6">
+                
+                {/* Kolom 1: Logo & Slogan (Mengambil 5 Kolom) */}
+                <div className="md:col-span-5 space-y-6">
+                    <h4 className="text-2xl md:text-3xl tracking-tight font-medium text-neutral-900 leading-snug">
+                        Validasi keahlianmu <br /> bersama kami
+                    </h4>
+                    <p className="text-sm text-neutral-600 max-w-sm">
+                        Lembaga Sertifikasi Profesi terpercaya untuk memastikan kompetensi kerja yang berstandar industri.
                     </p>
                 </div>
 
-                {/* Kolom 2: Kontak */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="font-medium text-lg">Kontak Kami</h3>
-                    <div className="flex items-start gap-3 text-sm text-white/70">
-                        <MapPin size={18} className="shrink-0 text-brand-light" />
-                        <p>6GVJ+HPV, Harjamukti, Kec. Harjamukti, Kota Cirebon, Jawa Barat 45143</p>
+                {/* Kolom 2: Kontak & Alamat (Mengambil 4 Kolom) */}
+                <div className="md:col-span-4 space-y-4">
+                    <div className="font-medium text-neutral-900 text-base mb-2">
+                        Kontak & Alamat
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-white/70">
-                        <Mail size={18} className="shrink-0 text-brand-light" />
-                        <p>ptkodingka@gmail.com</p>
+                    <div className="flex items-start gap-3 text-sm text-neutral-600">
+                        <div className="bg-neutral-100 p-2.5 rounded-full shrink-0 text-neutral-800 mt-0.5">
+                            <MapPin size={16} />
+                        </div>
+                        <p className="leading-relaxed">6GVJ+HPV, Harjamukti, Kec. Harjamukti, Kota Cirebon, Jawa Barat 45143</p>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-neutral-600">
+                        <div className="bg-neutral-100 p-2.5 rounded-full shrink-0 text-neutral-800">
+                            <Mail size={16} />
+                        </div>
+                        <span className="text-neutral-800 font-medium">ptkodingka@gmail.com</span>
                     </div>
                 </div>
 
-                {/* Kolom 3: Sosial Media */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="font-medium text-lg">Ikuti Kami</h3>
-                    <div className="flex gap-4">
-                        <a
-                            href="#"
-                            className="p-2"
-                        >
-                            <img
-                                src="/images/instagram.png"
-                                alt="Instagram"
-                                className="w-6 h-6"
-                            />
-                        </a>
-                        <a
-                            href="#"
-                            className="p-2"
-                        >
-                            <img
-                                src="/images/facebook.png"
-                                alt="LinkedIn"
-                                className="w-6 h-6"
-                            />
-                        </a>
+                {/* Kolom 3: Sosial Media (Mengambil 3 Kolom) */}
+                <div className="md:col-span-3 space-y-4">
+                    <div className="font-medium text-neutral-900 text-base mb-2">
+                        Ikuti Kami
+                    </div>
+                    <p className="text-sm text-neutral-600">
+                        Dapatkan informasi dan pembaruan terbaru seputar skema sertifikasi.
+                    </p>
+                    <div className="flex items-center gap-3 pt-2">
+                        {[
+                            { icon: FaInstagram, href: "https://instagram.com" },
+                            { icon: FaLinkedin, href: "https://linkedin.com" },
+                            { icon: FaWhatsapp, href: "https://wa.me/xxx" },
+                            { icon: FaYoutube, href: "https://youtube.com" },
+                        ].map((item, index) => {
+                            const IconComponent = item.icon;
+                            return (
+                                <a 
+                                    key={index}
+                                    href={item.href} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 hover:text-neutral-900 p-3 rounded-full transition-colors flex items-center justify-center"
+                                >
+                                    <IconComponent className="w-4 h-4" />
+                                </a>
+                            );
+                        })}
                     </div>
                 </div>
             </div>
 
-            {/* Garis Pembatas & Copyright */}
-            <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-white/50">
-                <p>© {currentYear} LSP KODINGKA. All rights reserved.</p>
+            {/* Bagian Bawah: Copyright & Policy */}
+            <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-neutral-600">
+                <div className="flex items-center gap-2">
+                    <span>©lspkodingka.id</span>
+                    <span className="w-1 h-1 bg-neutral-400 rounded-full" />
+                    <span>Dibuat oleh nawastra</span>
+                </div>
+                <div className="flex gap-6">
+                    <a href="#" className="hover:text-neutral-900 transition-colors">Kebijakan Privasi</a>
+                    <a href="#" className="hover:text-neutral-900 transition-colors">Syarat & Ketentuan</a>
+                </div>
             </div>
         </footer>
     );

@@ -1,15 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, MessageCircleQuestion } from "lucide-react";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-    Card,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge.tsx"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -19,9 +12,7 @@ import {
     CarouselNext,
     CarouselPrevious
 } from "@/components/ui/carousel";
-
-import { MailBadge, BrainCircuit, ScrollText } from 'lucide-react';
-
+import { Separator } from "@/components/ui/separator";
 
 const partners = [
     { name: "Mitra 1", logo: "/images/Mitra-1.webp" },
@@ -65,22 +56,22 @@ export default function Home() {
     const schemesData = [
         {
             id: 1,
-            title: "Digital Marketing",
-            category: "klaster",
-            categoryLabel: "Klaster",
-            units: "7 Unit Kompetensi",
-            price: "Rp800.000",
-            image: "images/Digital Marketing.webp",
-            isPopular: true,
-        },
-        {
-            id: 2,
             title: "Asistant Web Developer",
             category: "okupasi",
             categoryLabel: "Okupasi",
             units: "6 Unit Kompetensi",
             price: "Rp1.000.000",
             image: "images/Asistant Web Developer.webp",
+            isPopular: true,
+        },
+        {
+            id: 2,
+            title: "Digital Marketing",
+            category: "klaster",
+            categoryLabel: "Klaster",
+            units: "7 Unit Kompetensi",
+            price: "Rp800.000",
+            image: "images/Digital Marketing.webp",
             isPopular: true,
         },
         {
@@ -166,176 +157,114 @@ export default function Home() {
     ];
 
     const filteredSchemes = schemesData.filter((scheme) => {
-        if (activeTab === "overview") return true; // Tab "Semua"
-        if (activeTab === "analytics") return scheme.category === "okupasi"; // Tab "Okupasi"
-        if (activeTab === "reports") return scheme.category === "klaster"; // Tab "Klaster"
+        if (activeTab === "overview") return true;
+        if (activeTab === "analytics") return scheme.category === "okupasi";
+        if (activeTab === "reports") return scheme.category === "klaster";
         return true;
     });
 
     return (
         <>
-
             {/* Hero */}
-            <section className="relative px-6 py-15 md:px-20 md:py-28 h-svh flex flex-col justify-end overflow-hidden">
-                <img
-                    src="/images/Hero-banner-potrait.webp"
-                    alt="Hero Banner"
-                    fetchPriority="high"
-                    className="absolute inset-0 w-full h-full object-cover object-top md:hidden"
-                />
-                <img
-                    src="/images/Hero-banner.webp"
-                    alt="Hero Banner"
-                    fetchPriority="high"
-                    className="absolute inset-0 w-full h-full object-cover object hidden md:block"
-                />
+            <section className="px-6 py-6 md:px-20 md:py-20 lg:min-h-svh flex flex-col justify-between">
+                <div className="flex flex-col justify-end h-full relative z-20 pt-20 md:pt-20">
+                    <h1 className="text-5xl sm:text-4xl md:text-6xl lg:max-w-3xl font-medium tracking-tight leading-tight">
+                        Validasi keahlianmu bersama kami
+                    </h1>
+                    <div className="flex flex-col md:flex-row-reverse justify-between items-start md:items-center gap-6 md:gap-0 mt-6 md:mt-8">
+                        <p className="max-w-xs text-sm sm:text-base text-neutral-600">
+                            Lembaga sertifikasi profesional resmi untuk bidang AI dan teknologi.
+                        </p>
+                        <div className="flex flex-row w-full md:w-auto gap-3">
+                            <Button
+                                size="lg"
+                                className="flex-1 rounded-full px-4 py-6 cursor-pointer bg-sky-700 hover:bg-sky-700/80"
+                                onClick={() => {
+                                    const element = document.getElementById("skema");
+                                    if (element) {
+                                        element.scrollIntoView({ behavior: "smooth" });
+                                    }
+                                }}
+                            >
+                                Eksplor program
+                            </Button>
+                            <Button
+                                size="lg"
+                                variant="secondary"
+                                className="flex-1 rounded-full px-4 py-6"
+                            >
+                                <a href="#konsultasi">Konsultasi gratis</a>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
 
-                <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/20 to-black/0 z-10"></div>
+                <div className="mb-6 mt-8 md:mt-14">
+                    <Separator />
+                </div>
 
-                <div className="flex flex-col justify-end h-full relative z-20">
-                    <h1 className="text-5xl md:text-6xl font-medium lg:font-normal tracking-tight leading-tight text-white">Sertifikasikan Profesimu.</h1>
-                    <p className="mt-2 text-neutral-50 max-w-md">Kami adalah Lembaga sertifikasi profesional resmi untuk bidang AI dan teknologi digital.</p>
-                    <Button size="lg" className="mt-6 w-full md:w-fit" onClick={() => {
-                        const element = document.getElementById("skema");
-                        if (element) {
-                            element.scrollIntoView({ behavior: "smooth" });
-                        }
-                    }}>
-                        Jelajahi Skema
-                    </Button>
+                {/* Partner Section Full-Width (Keluar dari padding section utama) */}
+                <div className="relative z-20 w-full overflow-hidden -mx-6] md:-mx-20 md:w-[calc(100%+160px)]">
+                    <p className="text-xs uppercase tracking-wider text-neutral-600 font-mono mb-6 md:px-20">Dipercaya Berbagai Institusi</p>
+
+                    <div className="relative w-full flex overflow-hidden py-4">
+                        <motion.div
+                            className="flex gap-16 items-center shrink-0"
+                            animate={{ x: ["0%", "-50%"] }}
+                            transition={{ repeat: Infinity, duration: 35, ease: "linear" }}
+                        >
+                            {[...partners, ...partners].map((partner, index) => (
+                                <div key={index} className="flex items-center justify-center shrink-0">
+                                    <img
+                                        src={partner.logo}
+                                        alt={partner.name}
+                                        className="max-h-12 max-w-32 object-contain opacity-85 hover:opacity-100 transition-opacity"
+                                    />
+                                </div>
+                            ))}
+                        </motion.div>
+                    </div>
                 </div>
             </section>
 
             {/* About */}
-            <section className="px-6 py-12 md:px-20 md:py-20 flex flex-col md:flex-row gap-8 md:gap-20 items-start  bg-slate-50">
-                <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-sky-900"></div>
-                    <div className="font-medium text-sky-900">Tentang Kami</div>
+            <section className="px-6 py-8 md:px-20 md:py-10">
+                <div className="mb-12">
+                    <p className="leading-tight text-2xl md:text-4xl font-medium max-w-2xl tracking-tight">Menjadi jembatan bagi kamu untuk meraih pengakuan resmi</p>
                 </div>
-                <div className="max-w-2xl space-y-2">
-                    <p className="text-xl md:text-2xl  leading-relaxed">
-                        Berfokus secara khusus pada bidang AI dan teknologi digital.
-                        Kodingka berkomitmen untuk mencetak talenta-talenta digital Indonesia yang profesional, kompeten, dan siap bersaing di era industri modern.
+                <div>
+                    <img src="images/Hero-banner.webp" alt="lsp kodingka" className="h-125 rounded-3xl w-full object-cover object-top" />
+                </div>
+                <div className="max-w-2xl space-y-2 mt-6">
+                    <h6 className="font-medium lg:text-lg tracking-tight">Mengenal tentang kami</h6>
+                    <p className="leading-relaxed text-neutral-600 max-w-xl lg:text-lg">
+                        Kodingka berkomitmen untuk mencetak talenta digital Indonesia yang kompeten dan siap bersaing di era industri modern.
                     </p>
-                    <Link to="/tentang-kami" className="text-sky-900 hover:underline underline md:no-underline">Selengkapnya</Link>
-                </div>
-            </section>
-
-            {/* Partners */}
-            <section className="px-2 py-10 md:px-14 md:py-20">
-                <div className="mx-auto px-6">
-                    <div className="mb-12 text-center">
-                        <h2 className="antialiased tracking-tight text-xl">
-                            Dipercaya Berbagai Institusi
-                        </h2>
-                    </div>
-
-                    {/* Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 border-t border-l border-slate-100">
-                        {partners.map((partner, index) => {
-                            const isEven = index % 2 === 0;
-                            return (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                    className={`border-r border-b border-slate-200 p-8 flex items-center justify-center transition-all duration-300 group ${isEven ? "bg-white" : "bg-neutral-50/70"
-                                        } hover:bg-sky-50/50`}
-                                >
-                                    <div className="w-full h-16 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                                        <img
-                                            src={partner.logo}
-                                            alt={partner.name}
-                                            className="max-h-14 max-w-35 object-contain opacity-90 group-hover:opacity-100 transition-opacity"
-                                        />
-                                    </div>
-                                </motion.div>
-                            )
-                        })}
-                    </div>
-                </div>
-            </section>
-
-            {/* Reasons */}
-            <section className="px-6 py-12 md:px-20 md:py-20">
-                <div className="max-w-xl mb-16 mx-auto">
-                    <h2 className="text-center text-3xl md:text-5xl leading-snug tracking-tight">
-                        Kami Adalah Solusi Tepat untuk Anda
-                    </h2>
-                    <p className="text-center mt-3 text-base md:text-base text-neutral-600">
-                        Akses pengujian digital yang kredibel, cepat, dan selaras dengan kebutuhan industri untuk memperkuat daya saing Anda.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto">
-
-                    {/* Card 1 (Putih dengan efek gradasi bawah) */}
-                    <div className="relative overflow-hidden border border-slate-200/80 rounded-xl p-6 h-70 bg-white flex flex-col justify-between flex-1">
-                        {/* Lapisan Gradasi Halus di Bagian Bawah */}
-                        <div className="absolute inset-0 bg-linear-to-tr from-sky-100/60 via-transparent to-transparent pointer-events-none" />
-
-                        <div className="self-end text-xs font-semibold text-slate-400 z-10">01</div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
-                                <MailBadge size={24} />
-                            </div>
-                            <h4 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Sertifikat Resmi</h4>
-                            <p className="text-sm mt-2 text-neutral-600 leading-relaxed">Diakui secara nasional untuk menunjang jenjang karier di berbagai sektor industri.</p>
-                        </div>
-                    </div>
-
-                    {/* Card 2 (Biru Utama - Penyeimbang Tengah) */}
-                    <div className="relative overflow-hidden border border-slate-200/80 rounded-xl p-6 h-70 bg-white flex flex-col justify-between flex-1">
-                        <div className="absolute inset-0 bg-linear-to-tr from-sky-100/60 via-transparent to-transparent pointer-events-none" />
-                        <div className="self-end text-xs font-semibold text-slate-400">02</div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
-                                <BrainCircuit size={24}></BrainCircuit>
-                            </div>
-                            <h4 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Proses Cepat & Transparan</h4>
-                            <p className="text-sm mt-2 text-neutral-600 leading-relaxed">Sistem pendaftaran hingga ujian berbasis digital yang terintegrasi penuh.</p>
-                        </div>
-                    </div>
-
-                    {/* Card 3 (Putih dengan efek gradasi bawah) */}
-                    <div className="relative overflow-hidden border border-slate-200/80 rounded-xl p-6 h-70 bg-white flex flex-col justify-between flex-1">
-                        {/* Lapisan Gradasi Halus di Bagian Bawah */}
-                        <div className="absolute inset-0 bg-linear-to-tr from-sky-100/60 via-transparent to-transparent pointer-events-none" />
-
-                        <div className="self-end text-xs font-semibold text-slate-400 z-10">03</div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 mb-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-900">
-                                <ScrollText size={24}></ScrollText>
-                            </div>
-                            <h4 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Kurikulum Industri</h4>
-                            <p className="text-sm mt-2 text-neutral-600 leading-relaxed">Materi uji disesuaikan langsung dengan kebutuhan masa kini dan standar industri.</p>
-                        </div>
+                    <div className="mt-4">
+                        <Link to="/tentang-kami" className="font-medium lg:text-lg flex items-center gap-2 hover:gap-2.5">
+                            Selengkapnya
+                            <ArrowRight size={16}></ArrowRight>
+                        </Link>
                     </div>
                 </div>
             </section>
 
             {/* Schemes */}
-            <section className="px-6 py-10 md:px-14 md:py-20 bg-linear-to-b from-slate-50 via-slate-50 to-white" id="skema">
-                <div className="max-w-prose mb-12">
-                    <h2 className="text-3xl md:text-5xl leading-snug tracking-tight">
-                        Skema Sertifikasi
+            <section className="px-6 py-8 md:px-20 md:py-10 " id="skema">
+                <div className="max-w-lg mb-12">
+                    <h2 className="mt-3 text-2xl md:text-4xl font-medium tracking-tight leading-tight">
+                        Pilih skema sertifikasi sesuai dengan kebutuhan Anda
                     </h2>
-                    <p className="mt-3 text-sm md:text-base text-neutral-600">
-                        Pilih skema sertifikasi yang sesuai dengan kebutuhan Anda.
-                    </p>
                 </div>
 
-                {/* Tab Navigation */}
                 <Tabs className="-mt-4" defaultValue="overview" onValueChange={(value) => setActiveTab(value)}>
-                    <TabsList variant="line">
-                        <TabsTrigger value="overview">Semua</TabsTrigger>
-                        <TabsTrigger value="analytics">Okupasi</TabsTrigger>
-                        <TabsTrigger value="reports">Klaster</TabsTrigger>
+                    <TabsList variant="line" className="flex gap-2">
+                        <TabsTrigger className="text-base" value="overview">Semua</TabsTrigger>
+                        <TabsTrigger className="text-base" value="analytics">Okupasi</TabsTrigger>
+                        <TabsTrigger className="text-base" value="reports">Klaster</TabsTrigger>
                     </TabsList>
                 </Tabs>
 
-                {/* Shadcn Carousel Container */}
                 <div className="mt-8">
                     <Carousel
                         opts={{
@@ -344,65 +273,142 @@ export default function Home() {
                         }}
                         className="w-full"
                     >
-                        <CarouselContent className="px-4 pb-1">
+                        <CarouselContent className="px-4 pb-4">
                             {filteredSchemes.map((scheme) => (
-                                <CarouselItem key={scheme.id} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                                    <Card className="relative mx-auto w-full max-w-md pt-0">
-                                        <div className="relative">
+                                <CarouselItem key={scheme.id} className="pl-4 md:basis-1/2 lg:basis-1/4">
+                                    {/* Desain Card Baru */}
+                                    <div className="border border-neutral-200 rounded-3xl w-full overflow-hidden bg-white mx-auto">
+                                        <div className="relative w-full">
+                                            {scheme.isPopular && (
+                                                <Badge className="absolute right-4 top-4 z-10">Populer</Badge>
+                                            )}
                                             <img
                                                 src={scheme.image}
                                                 alt={`Sertifikasi ${scheme.title}`}
-                                                className="relative z-20 aspect-video w-full object-cover object-right"
+                                                className="w-full aspect-video object-cover"
                                                 loading="lazy"
                                             />
-                                            {scheme.isPopular && (
-                                                <Badge className="absolute z-30 top-4 right-4">Populer</Badge>
-                                            )}
                                         </div>
-                                        <CardHeader className="flex flex-col gap-4">
-                                            <div className="flex justify-between items-center w-full">
-                                                <div>
-                                                    <CardTitle className="text-lg">{scheme.title}</CardTitle>
-                                                    <CardDescription className="text-xs">
-                                                        KODINGKA
-                                                    </CardDescription>
+                                        <div className="mt-6 px-6 pb-6">
+                                            <h4 className="font-semibold text-lg text-neutral-900 line-clamp-1">
+                                                {scheme.title}
+                                            </h4>
+                                            <div className="flex items-center gap-2 mt-2 text-neutral-600">
+                                                <span className="text-sm">{scheme.categoryLabel}</span>
+                                                <Separator orientation="vertical" className="h-4" />
+                                                <span className="text-sm">{scheme.units}</span>
+                                            </div>
+                                            <div className="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between">
+                                                <span className="text-xs text-neutral-600 font-medium">Investasi</span>
+                                                <div className="font-semibold text-neutral-900 text-base">
+                                                    {scheme.price}
                                                 </div>
                                             </div>
-                                            <div className="flex gap-1">
-                                                <Badge variant="secondary">{scheme.categoryLabel}</Badge>
-                                                <Badge variant="secondary">{scheme.units}</Badge>
-                                            </div>
-                                            <div className="font-semibold">{scheme.price}</div>
-                                        </CardHeader>
-                                        <CardFooter>
-                                            <Button className="w-full">Detail Skema</Button>
-                                        </CardFooter>
-                                    </Card>
+                                            <Button size="icon" variant="secondary" className="rounded-full w-full px-4 mt-4">
+                                                Detail
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </CarouselItem>
                             ))}
                         </CarouselContent>
 
-
                         <div className="flex justify-center items-center gap-4 mt-6">
-                            <CarouselPrevious className="static translate-y-0" />
-                            <CarouselNext className="static translate-y-0" />
+                            <CarouselPrevious className="static translate-y-0 rounded-full border-neutral-200 hover:bg-neutral-100" />
+                            <CarouselNext className="static translate-y-0 rounded-full border-neutral-200 hover:bg-neutral-100" />
                         </div>
                     </Carousel>
                 </div>
             </section>
 
-            {/* FAQ */}
-            <section className="px-6 py-10 md:px-14 md:py-20">
-                <div className="max-w-prose mx-auto">
-                    <h2 className="text-center  text-3xl md:text-5xl leading-snug  tracking-tight">
-                        Pertanyaan Seputar Sertifikasi
+            <section className="px-6 py-12 md:px-20 md:py-16 bg-white">
+                <div className="max-w-xl mb-12">
+                    <h2 className="text-2xl md:text-4xl font-medium tracking-tight leading-tight text-neutral-900">
+                        Pahami bagaimana alur proses sertifikasi dilaksanakan
                     </h2>
-                    <p className="text-center mt-3 text-gray-600 mb-10">
-                        Berikut informasi penting yang perlu Anda ketahui sebelum memulai proses sertifikasi.
-                    </p>
+                </div>
 
-                    {/* Accordion List */}
-                    <div className="flex flex-col gap-4">
+                <div className="w-full mx-auto relative overflow-hidden rounded-3xl min-h-112.5 flex items-center justify-center p-8">
+                    {/* Background Image dengan Blur Penuh */}
+                    <img
+                        src="/images/background-gradient.jpg"
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover filter blur-2xl scale-110 pointer-events-none"
+                    />
+
+                    {/* Konten List di Tengah */}
+                    <div className="relative z-10 w-full max-w-md space-y-2">
+                        {[
+                            {
+                                step: "01",
+                                title: "Pendaftaran",
+                                desc: "Mengisi formulir dan memilih skema sertifikasi yang sesuai dengan kompetensi Anda."
+                            },
+                            {
+                                step: "02",
+                                title: "Verifikasi Dokumen",
+                                desc: "Pemeriksaan kelayakan berkas persyaratan administratif dan portofolio oleh tim asesor."
+                            },
+                            {
+                                step: "03",
+                                title: "Pembekalan & Asesmen",
+                                desc: "Sesi persiapan kompetensi serta pengisian formulir asesmen mandiri (APL-02)."
+                            },
+                            {
+                                step: "04",
+                                title: "Keputusan Sertifikasi",
+                                desc: "Sidang pleno oleh komite teknis untuk menetapkan hasil rekomendasi kompeten."
+                            },
+                            {
+                                step: "05",
+                                title: "Penerbitan Sertifikat",
+                                desc: "Pencetakan dan penyerahan sertifikat resmi berstandar nasional bagi yang lulus."
+                            },
+                        ].map((item, index) => {
+                            const isFirst = index === 0;
+                            const isLast = index === 4;
+
+                            return (
+                                <div
+                                    key={index}
+                                    className="flex items-center justify-center"
+                                >
+                                    {/* Konten Teks dengan Radius Dinamis */}
+                                    <div className={`
+                                        flex items-center gap-3 py-4 px-5 bg-white backdrop-blur-sm w-72 shadow-sm transition-all
+                                        ${isFirst ? 'rounded-t-2xl' : ''}
+                                        ${isLast ? 'rounded-b-2xl' : ''}
+                                        ${!isFirst && !isLast ? 'rounded-md' : ''}
+                                    `}>
+                                        <div className="font-semibold text-sm">{item.step}</div>
+                                        <div className="w-px h-4 bg-neutral-300"></div>
+                                        <h3 className="font-medium text-sm text-neutral-900">
+                                            {item.title}
+                                        </h3>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="max-w-4xl mt-6">
+                    <p className="lg:text-2xl tracking-tight">Seluruh tahapan dirancang secara transparan dan terstandarisasi untuk memastikan kompetensi peserta teruji secara objektif hingga penerbitan sertifikat resmi.</p>
+                </div>
+            </section>
+
+            {/* FAQ */}
+            <section className="px-6 py-8 md:px-20 md:py-10">
+                <div className="flex flex-col md:flex-row">
+                    <div className="flex-2">
+                        <h2 className="text-2xl md:text-4xl font-medium tracking-tight leading-tight">
+                            Pertanyaan seputar sertifikasi
+                        </h2>
+                        <p className="mt-3 text-gray-600 mb-10 max-w-sm lg:text-lg">
+                            Berikut informasi penting yang perlu Anda ketahui sebelum memulai proses sertifikasi.
+                        </p>
+                    </div>
+
+                    <div className="flex-2 flex flex-col gap-4">
                         {faqData.map((item, index) => (
                             <div key={index} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                                 <button
@@ -437,28 +443,24 @@ export default function Home() {
             </section>
 
             {/* CTA */}
-            <section className="py-10 md:py-16 px-4 md:px-16">
-                <div className="bg-linear-to-br from-sky-900 via-sky-950 to-blue-950 rounded-xl p-8 md:p-16 text-center shadow-xl">
-                    <h2 className="text-2xl md:text-4xl tracking-tight text-white mb-6">
-                        Masih Ragu Memilih Skema yang Tepat?
+            <section className="px-6 py-8 md:px-20 md:py-20 bg-neutral-50 mt-12">
+                <div>
+                    <h2 className="leading-tight text-2xl md:text-4xl font-medium max-w-lg tracking-tight mb-6">
+                        Sampaikan pertanyaan Anda, kami siap berdiskusi.
                     </h2>
-                    <p className="text-white/80 max-w-xl mx-auto mb-8 text-lsp-body">
-                        Jangan khawatir! kami siap membantu mengarahkan dan menjawab semua pertanyaan Anda secara gratis.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="flex flex-col w-fit">
                         <a
                             href="https://wa.me/6285316261399?text=Halo%20LSP%20KODINGKA,%20saya%20masih%20ragu%20dan%20ingin%20konsultasi%20tentang%20skema%20sertifikasi."
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm md:text-base bg-white text-[#1e2e3f] px-9 py-4 rounded-lg font-medium hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                            className="text-sm md:text-base px-6 py-3 font-medium bg-sky-700 hover:bg-sky-700/80 text-white rounded-full transition-colors flex items-center justify-center gap-2"
                         >
-                            <MessageCircleQuestion size={20} className="text-brand" />
-                            <span>Konsultasi via WhatsApp</span>
+                            <span>Konsultasi sekarang</span>
                         </a>
                     </div>
                 </div>
             </section>
-
+            <div className="w-full h-1 bg-linear-to-r from-blue-700 via-sky-500 to-cyan-400"></div>
         </>
     )
 }
