@@ -28,7 +28,6 @@ import {
     FilePlus,
     FileText,
     LogOut,
-    ShieldCheck,
     ChevronsUpDown,
     Settings,
     ClipboardPen,
