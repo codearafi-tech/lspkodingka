@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ArrowRight } from "lucide-react";
+import { ChevronDown, ArrowRight, Award, Zap, BookOpen, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CustomTabs, CustomTabsList, CustomTabsTrigger } from "@/components/ui/CustomTab";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-    CarouselNext,
-    CarouselPrevious
+    CarouselPrevious,
+    CarouselNext
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
 
@@ -164,10 +164,10 @@ export default function Home() {
     });
 
     return (
-        <>
+        <div className="flex flex-col gap-16 lg:gap-24">
             {/* Hero */}
-            <section className="px-6 py-6 md:px-20 md:py-20 lg:min-h-svh flex flex-col justify-between">
-                <div className="flex flex-col justify-end h-full relative z-20 pt-20 md:pt-20">
+            <section className="px-6 pt-6 md:px-20 flex flex-col justify-between">
+                <div className="flex flex-col h-full relative z-20 my-auto">
                     <h1 className="text-5xl sm:text-4xl md:text-6xl lg:max-w-3xl font-medium tracking-tight leading-tight">
                         Validasi keahlianmu bersama kami
                     </h1>
@@ -191,21 +191,21 @@ export default function Home() {
                             <Button
                                 size="lg"
                                 variant="secondary"
-                                className="flex-1 rounded-full px-4 py-6"
+                                className="flex-1 rounded-full px-4 py-6 "
                             >
-                                <a href="#konsultasi">Konsultasi gratis</a>
+                                <a href="https://wa.me/6285316261399?text=Halo%20LSP%20KODINGKA,%20saya%20masih%20ragu%20dan%20ingin%20konsultasi%20tentang%20skema%20sertifikasi.">Konsultasi gratis</a>
                             </Button>
                         </div>
                     </div>
                 </div>
 
-                <div className="mb-6 mt-8 md:mt-14">
+                <div className="mb-8 mt-8 lg:mt-14">
                     <Separator />
                 </div>
 
                 {/* Partner Section Full-Width (Keluar dari padding section utama) */}
                 <div className="relative z-20 w-full overflow-hidden -mx-6] md:-mx-20 md:w-[calc(100%+160px)]">
-                    <p className="text-xs uppercase tracking-wider text-neutral-600 font-mono mb-6 md:px-20">Dipercaya Berbagai Institusi</p>
+                    <p className="text-sm uppercase tracking-normal text-neutral-600 mb-6 md:px-20">Dipercaya Berbagai Institusi</p>
 
                     <div className="relative w-full flex overflow-hidden py-4">
                         <motion.div
@@ -228,9 +228,9 @@ export default function Home() {
             </section>
 
             {/* About */}
-            <section className="px-6 py-8 md:px-20 md:py-10">
+            <section className="px-6 md:px-20">
                 <div className="mb-12">
-                    <p className="leading-tight text-2xl md:text-4xl font-medium max-w-2xl tracking-tight">Menjadi jembatan bagi kamu untuk meraih pengakuan resmi</p>
+                    <p className="leading-tight text-3xl md:text-4xl font-medium max-w-lg tracking-tight">Menjadi jembatan bagi Anda untuk meraih pengakuan resmi</p>
                 </div>
                 <div>
                     <img src="images/Hero-banner.webp" alt="lsp kodingka" className="h-125 rounded-3xl w-full object-cover object-top" />
@@ -250,119 +250,143 @@ export default function Home() {
             </section>
 
             {/* Schemes */}
-            <section className="px-6 py-8 md:px-20 md:py-10 " id="skema">
-                <div className="max-w-lg mb-12">
-                    <h2 className="mt-3 text-2xl md:text-4xl font-medium tracking-tight leading-tight">
+            <section className="px-6 md:px-20" id="skema">
+                <div className="max-w-xl">
+                    <h2 className="mt-3 text-3xl md:text-4xl font-medium tracking-tight leading-tight">
                         Pilih skema sertifikasi sesuai dengan kebutuhan Anda
                     </h2>
+                    {/* Custom Tabs diletakkan di bawah judul section */}
+                    <CustomTabs
+                        defaultValue="overview"
+                        onValueChange={(value) => setActiveTab(value)}
+                        className="mt-6"
+                    >
+                        {(activeTab, setActiveTabState) => (
+                            <CustomTabsList className="flex gap-6">
+                                <CustomTabsTrigger
+                                    value="overview"
+                                    activeTab={activeTab}
+                                    onClick={() => setActiveTabState("overview")}
+                                    className="text-lg"
+                                >
+                                    Semua
+                                </CustomTabsTrigger>
+                                <CustomTabsTrigger
+                                    value="analytics"
+                                    activeTab={activeTab}
+                                    onClick={() => setActiveTabState("analytics")}
+                                    className="text-lg"
+                                >
+                                    Okupasi
+                                </CustomTabsTrigger>
+                                <CustomTabsTrigger
+                                    value="reports"
+                                    activeTab={activeTab}
+                                    onClick={() => setActiveTabState("reports")}
+                                    className="text-lg"
+                                >
+                                    Klaster
+                                </CustomTabsTrigger>
+                            </CustomTabsList>
+                        )}
+                    </CustomTabs>
                 </div>
 
-                <Tabs className="-mt-4" defaultValue="overview" onValueChange={(value) => setActiveTab(value)}>
-                    <TabsList variant="line" className="flex gap-2">
-                        <TabsTrigger className="text-base" value="overview">Semua</TabsTrigger>
-                        <TabsTrigger className="text-base" value="analytics">Okupasi</TabsTrigger>
-                        <TabsTrigger className="text-base" value="reports">Klaster</TabsTrigger>
-                    </TabsList>
-                </Tabs>
+                <Separator className="my-6"></Separator>
 
-                <div className="mt-8">
-                    <Carousel
-                        opts={{
-                            align: "start",
-                            loop: false,
-                        }}
-                        className="w-full"
-                    >
-                        <CarouselContent className="px-4 pb-4">
-                            {filteredSchemes.map((scheme) => (
-                                <CarouselItem key={scheme.id} className="pl-4 md:basis-1/2 lg:basis-1/4">
-                                    {/* Desain Card Baru */}
-                                    <div className="border border-neutral-200 rounded-3xl w-full overflow-hidden bg-white mx-auto">
-                                        <div className="relative w-full">
-                                            {scheme.isPopular && (
-                                                <Badge className="absolute right-4 top-4 z-10">Populer</Badge>
-                                            )}
-                                            <img
-                                                src={scheme.image}
-                                                alt={`Sertifikasi ${scheme.title}`}
-                                                className="w-full aspect-video object-cover"
-                                                loading="lazy"
-                                            />
-                                        </div>
-                                        <div className="mt-6 px-6 pb-6">
-                                            <h4 className="font-semibold text-lg text-neutral-900 line-clamp-1">
-                                                {scheme.title}
-                                            </h4>
-                                            <div className="flex items-center gap-2 mt-2 text-neutral-600">
-                                                <span className="text-sm">{scheme.categoryLabel}</span>
-                                                <Separator orientation="vertical" className="h-4" />
-                                                <span className="text-sm">{scheme.units}</span>
+
+                <div>
+                    <div className="mt-8">
+                        <Carousel
+                            opts={{
+                                align: "start",
+                                loop: false,
+                            }}
+                            className="w-full relative"
+                        >
+                            <CarouselContent className="pb-4">
+                                {filteredSchemes.map((scheme) => (
+                                    <CarouselItem key={scheme.id} className="pl-4 md:basis-1/2 lg:basis-1/4">
+                                        <div className="border border-neutral-200 rounded-3xl w-full overflow-hidden bg-white mx-auto transform-gpu transition-shadow hover:shadow-sm">
+                                            <div className="relative w-full aspect-video overflow-hidden bg-neutral-100">
+                                                {scheme.isPopular && (
+                                                    <Badge className="absolute right-4 top-4 z-10">Populer</Badge>
+                                                )}
+                                                <img
+                                                    src={scheme.image}
+                                                    alt={`Sertifikasi ${scheme.title}`}
+                                                    className="w-full h-full object-cover transform-gpu"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
                                             </div>
-                                            <div className="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between">
-                                                <span className="text-xs text-neutral-600 font-medium">Investasi</span>
-                                                <div className="font-semibold text-neutral-900 text-base">
-                                                    {scheme.price}
+                                            <div className="mt-6 px-6 pb-6">
+                                                <h4 className="font-semibold text-lg text-neutral-900 line-clamp-1">
+                                                    {scheme.title}
+                                                </h4>
+                                                <div className="flex items-center gap-2 mt-2 text-neutral-600">
+                                                    <span className="text-sm">{scheme.categoryLabel}</span>
+                                                    <Separator orientation="vertical" className="h-4" />
+                                                    <span className="text-sm">{scheme.units}</span>
                                                 </div>
+                                                <div className="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between">
+                                                    <span className="text-xs text-neutral-600 font-medium">Investasi</span>
+                                                    <div className="font-semibold text-neutral-900 text-base">
+                                                        {scheme.price}
+                                                    </div>
+                                                </div>
+                                                <Button variant="default" className="rounded-full w-full mt-4">
+                                                    Detail
+                                                </Button>
                                             </div>
-                                            <Button size="icon" variant="secondary" className="rounded-full w-full px-4 mt-4">
-                                                Detail
-                                            </Button>
                                         </div>
-                                    </div>
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-
-                        <div className="flex justify-center items-center gap-4 mt-6">
-                            <CarouselPrevious className="static translate-y-0 rounded-full border-neutral-200 hover:bg-neutral-100" />
-                            <CarouselNext className="static translate-y-0 rounded-full border-neutral-200 hover:bg-neutral-100" />
-                        </div>
-                    </Carousel>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <div className="flex justify-center gap-2 px-4 mt-6">
+                                <CarouselPrevious className="static transform-none" />
+                                <CarouselNext className="static transform-none" />
+                            </div>
+                        </Carousel>
+                    </div>
                 </div>
             </section>
 
-            <section className="px-6 py-12 md:px-20 md:py-16 bg-white">
+            <section className="px-6 md:px-20">
                 <div className="max-w-xl mb-12">
-                    <h2 className="text-2xl md:text-4xl font-medium tracking-tight leading-tight text-neutral-900">
+                    <h2 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight text-neutral-900">
                         Pahami bagaimana alur proses sertifikasi dilaksanakan
                     </h2>
                 </div>
 
-                <div className="w-full mx-auto relative overflow-hidden rounded-3xl min-h-112.5 flex items-center justify-center p-8">
-                    {/* Background Image dengan Blur Penuh */}
+                <div className="w-full mx-auto relative overflow-hidden group rounded-3xl min-h-112.5 flex items-center justify-center p-8">
                     <img
-                        src="/images/background-gradient.jpg"
+                        src="/images/background-gradient.webp"
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover filter blur-2xl scale-110 pointer-events-none"
+                        className="absolute inset-0 w-full h-full object-cover filter blur-2xl scale-110 group-hover:scale-125 transition-transform duration-700 ease-out pointer-events-none"
                     />
 
-                    {/* Konten List di Tengah */}
                     <div className="relative z-10 w-full max-w-md space-y-2">
                         {[
                             {
                                 step: "01",
                                 title: "Pendaftaran",
-                                desc: "Mengisi formulir dan memilih skema sertifikasi yang sesuai dengan kompetensi Anda."
                             },
                             {
                                 step: "02",
                                 title: "Verifikasi Dokumen",
-                                desc: "Pemeriksaan kelayakan berkas persyaratan administratif dan portofolio oleh tim asesor."
                             },
                             {
                                 step: "03",
                                 title: "Pembekalan & Asesmen",
-                                desc: "Sesi persiapan kompetensi serta pengisian formulir asesmen mandiri (APL-02)."
                             },
                             {
                                 step: "04",
                                 title: "Keputusan Sertifikasi",
-                                desc: "Sidang pleno oleh komite teknis untuk menetapkan hasil rekomendasi kompeten."
                             },
                             {
                                 step: "05",
                                 title: "Penerbitan Sertifikat",
-                                desc: "Pencetakan dan penyerahan sertifikat resmi berstandar nasional bagi yang lulus."
                             },
                         ].map((item, index) => {
                             const isFirst = index === 0;
@@ -391,16 +415,64 @@ export default function Home() {
                         })}
                     </div>
                 </div>
-                <div className="max-w-4xl mt-6">
-                    <p className="lg:text-2xl tracking-tight">Seluruh tahapan dirancang secara transparan dan terstandarisasi untuk memastikan kompetensi peserta teruji secara objektif hingga penerbitan sertifikat resmi.</p>
+                <div className="md:max-w-2xl mt-6">
+                    <p className="text-lg tracking-tight">Seluruh tahapan dirancang secara sistematis untuk memastikan kompetensi peserta teruji secara objektif hingga penerbitan sertifikat.</p>
+                </div>
+            </section>
+
+            {/* Why Choose Us */}
+            <section className="px-6 md:px-20">
+                <div className="max-w-xl mb-12">
+                    <h2 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight text-neutral-900">
+                        Mengapa kami menjadi pilihan tepat bagi Anda
+                    </h2>
+                </div>
+
+                {/* content */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 -space-y-px lg:space-y-0 lg:-space-x-px">
+                    {/* Card 1: Sertifikat Resmi */}
+                    <div className="border p-6 rounded-t-2xl lg:rounded-t-none lg:rounded-l-2xl relative z-10">
+                        <div className="mt-20 mb-4 inline-flex p-3 rounded-lg bg-linear-to-br from-sky-100 to-sky-200 text-sky-700">
+                            <Award className="w-4 h-4" />
+                        </div>
+                        <h3 className="font-medium tracking-tight text-lg">Sertifikat Resmi</h3>
+                        <p className="text-neutral-600 mt-4">Diakui secara nasional untuk menunjang jenjang karier.</p>
+                    </div>
+
+                    {/* Card 2: Proses Cepat & Transparan */}
+                    <div className="border p-6 relative z-10">
+                        <div className="mt-20 mb-4 inline-flex p-3 rounded-lg bg-linear-to-br from-amber-100 to-amber-200 text-amber-700">
+                            <Zap className="w-4 h-4" />
+                        </div>
+                        <h3 className="font-medium tracking-tight text-lg">Proses Cepat & Transparan</h3>
+                        <p className="text-neutral-600 mt-4">Pendaftaran hingga ujian berbasis digital yang terintegrasi.</p>
+                    </div>
+
+                    {/* Card 3: Kurikulum Industri */}
+                    <div className="border p-6 relative z-10">
+                        <div className="mt-20 mb-4 inline-flex p-3 rounded-lg bg-linear-to-br from-emerald-100 to-emerald-200 text-emerald-700">
+                            <BookOpen className="w-4 h-4" />
+                        </div>
+                        <h3 className="font-medium tracking-tight text-lg">Kurikulum Industri</h3>
+                        <p className="text-neutral-600 mt-4">Materi uji disesuaikan langsung dengan kebutuhan masa kini.</p>
+                    </div>
+
+                    {/* Card 4: Mitra Terpercaya */}
+                    <div className="border p-6 rounded-b-2xl lg:rounded-l-none lg:rounded-r-2xl relative z-10">
+                        <div className="mt-20 mb-4 inline-flex p-3 rounded-lg bg-linear-to-br from-rose-100 to-rose-200 text-rose-700">
+                            <Users className="w-4 h-4" />
+                        </div>
+                        <h3 className="font-medium tracking-tight text-lg">Mitra Terpercaya</h3>
+                        <p className="text-neutral-600 mt-4">Melayani kebutuhan sertifikasi profesional secara fleksibel.</p>
+                    </div>
                 </div>
             </section>
 
             {/* FAQ */}
-            <section className="px-6 py-8 md:px-20 md:py-10">
+            <section className="px-6 md:px-20">
                 <div className="flex flex-col md:flex-row">
                     <div className="flex-2">
-                        <h2 className="text-2xl md:text-4xl font-medium tracking-tight leading-tight">
+                        <h2 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight">
                             Pertanyaan seputar sertifikasi
                         </h2>
                         <p className="mt-3 text-gray-600 mb-10 max-w-sm lg:text-lg">
@@ -443,24 +515,27 @@ export default function Home() {
             </section>
 
             {/* CTA */}
-            <section className="px-6 py-8 md:px-20 md:py-20 bg-neutral-50 mt-12">
-                <div>
-                    <h2 className="leading-tight text-2xl md:text-4xl font-medium max-w-lg tracking-tight mb-6">
-                        Sampaikan pertanyaan Anda, kami siap berdiskusi.
-                    </h2>
-                    <div className="flex flex-col w-fit">
-                        <a
-                            href="https://wa.me/6285316261399?text=Halo%20LSP%20KODINGKA,%20saya%20masih%20ragu%20dan%20ingin%20konsultasi%20tentang%20skema%20sertifikasi."
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm md:text-base px-6 py-3 font-medium bg-sky-700 hover:bg-sky-700/80 text-white rounded-full transition-colors flex items-center justify-center gap-2"
-                        >
-                            <span>Konsultasi sekarang</span>
-                        </a>
+            <section className="bg-neutral-50">
+                <div className="px-6 md:px-20 py-20">
+                    <div>
+                        <h2 className="leading-tight text-3xl md:text-4xl font-medium max-w-lg tracking-tight mb-6">
+                            Sampaikan pertanyaan Anda, kami siap berdiskusi.
+                        </h2>
+                        <div className="flex flex-col w-fit">
+                            <a
+                                href="https://wa.me/6285316261399?text=Halo%20LSP%20KODINGKA,%20saya%20masih%20ragu%20dan%20ingin%20konsultasi%20tentang%20skema%20sertifikasi."
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm md:text-base px-6 py-3 font-medium bg-sky-700 hover:bg-sky-700/80 text-white rounded-full transition-colors flex items-center justify-center gap-2"
+                            >
+                                <span>Konsultasi sekarang</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
+                <div className="w-full h-1 bg-linear-to-r from-blue-700 via-sky-500 to-cyan-400"></div>
             </section>
-            <div className="w-full h-1 bg-linear-to-r from-blue-700 via-sky-500 to-cyan-400"></div>
-        </>
+
+        </div>
     )
 }

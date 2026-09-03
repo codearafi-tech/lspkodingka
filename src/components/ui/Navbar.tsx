@@ -54,35 +54,40 @@ export default function Navbar() {
     return (
         <>
             <nav
-                className={`fixed top-0 left-0 z-50 w-full px-6 py-4 transition-all duration-300 bg-white border-b border-border ${
+                className={`sticky top-0 left-0 mb-16 lg:mb-24 z-50 w-full px-6 py-4 transition-all duration-300 bg-white border-b border-border ${
                     isOpen ? "hidden md:block" : "block"
                 }`}
             >
-                <div className="flex items-center justify-between max-w-7xl mx-auto">
-                    
-                    {/* Bagian Kiri: Logo + Menu Navigasi */}
+                <div className="flex items-center justify-between px-6 mx-auto">
                     <div className="flex items-center gap-6">
                         <Link to="/" className="relative z-50">
                             <img
                                 src="/images/Logo-transparent.svg"
                                 alt="LSP Koding"
-                                className="w-8 h-auto transition-all duration-300"
+                                className="w-10 h-auto transition-all duration-300"
                             />
                         </Link>
 
                         <div className="hidden md:block">
                             <NavigationMenu>
                                 <NavigationMenuList className="flex items-center gap-2">
-                                    {navLinks.map((link) => (
-                                        <NavigationMenuItem key={link.href}>
-                                            <NavigationMenuLink
-                                                className={`${navigationMenuTriggerStyle()} text-neutral-700 hover:text-black hover:bg-neutral-100`}
-                                                href={link.href}
-                                            >
-                                                {link.name}
-                                            </NavigationMenuLink>
-                                        </NavigationMenuItem>
-                                    ))}
+                                    {navLinks.map((link) => {
+                                        const isActive = location.pathname === link.href;
+                                        return (
+                                            <NavigationMenuItem key={link.href}>
+                                                <NavigationMenuLink
+                                                    className={`${navigationMenuTriggerStyle()} tracking-tight ${
+                                                        isActive
+                                                            ? "text-black"
+                                                            : "text-neutral-500 hover:text-black"
+                                                    }`}
+                                                    href={link.href}
+                                                >
+                                                    {link.name}
+                                                </NavigationMenuLink>
+                                            </NavigationMenuItem>
+                                        );
+                                    })}
                                 </NavigationMenuList>
                             </NavigationMenu>
                         </div>
@@ -93,7 +98,7 @@ export default function Navbar() {
                         {token ? (
                             <Link
                                 to={dashboardUrl}
-                                className={`${navigationMenuTriggerStyle()} px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2`}
+                                className={`${navigationMenuTriggerStyle()} tracking-tight px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2`}
                             >
                                 <User className="w-4 h-4" />
                                 <span>Dashboard</span>
@@ -101,7 +106,7 @@ export default function Navbar() {
                         ) : (
                             <Link
                                 to="/login"
-                                className={`${navigationMenuTriggerStyle()} px-4 py-2 rounded-full bg-secondary hover:bg-primary hover:text-white`}
+                                className={`${navigationMenuTriggerStyle()} tracking-tight px-4 py-2 rounded-full bg-secondary hover:bg-primary hover:text-white`}
                             >
                                 Masuk
                             </Link>
@@ -162,15 +167,22 @@ export default function Navbar() {
                     </div>
 
                     <div className="flex flex-col space-y-4">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.href}
-                                to={link.href}
-                                className="text-neutral-700 hover:text-blue-600 font-medium transition-colors py-2"
-                            >
-                                {link.name}
-                            </Link>
-                        ))}
+                        {navLinks.map((link) => {
+                            const isActive = location.pathname === link.href;
+                            return (
+                                <Link
+                                    key={link.href}
+                                    to={link.href}
+                                    className={`font-medium transition-colors py-2 ${
+                                        isActive
+                                            ? "text-black font-semibold"
+                                            : "text-neutral-700 hover:text-blue-600"
+                                    }`}
+                                >
+                                    {link.name}
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

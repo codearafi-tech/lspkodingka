@@ -10,6 +10,7 @@ import AdminLayout from "./components/layout/AdminLayout.tsx";
 import Home from "./pages/public/Home";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import VerifyEmail from "./pages/auth/VerifyEmail";
 
 // Admin Pages
 import DashboardAdmin from "./pages/admin/Dashboard"; 
@@ -47,6 +48,7 @@ export function App() {
         <Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Route>
 
         {/* ADMIN (Menggunakan AdminLayout & Sidebar Shadcn) */}
