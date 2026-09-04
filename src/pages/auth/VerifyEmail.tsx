@@ -47,7 +47,6 @@ export default function VerifyEmail() {
 
         setResendLoading(true);
         try {
-            // Berdasarkan dokumentasi, endpoint ini selalu mengembalikan 200
             await axios.post(`${apiUrl}/auth/verify-email/resend`, { email });
             setResendSuccess(true);
         } catch (err: any) {

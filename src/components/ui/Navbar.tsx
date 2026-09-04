@@ -54,11 +54,11 @@ export default function Navbar() {
     return (
         <>
             <nav
-                className={`sticky top-0 left-0 mb-16 lg:mb-24 z-50 w-full px-6 py-4 transition-all duration-300 bg-white border-b border-border ${
+                className={`sticky top-0 left-0 mb-4 lg:mb-24 z-50 w-full px-6 py-4 transition-all duration-300 bg-white border-b border-border ${
                     isOpen ? "hidden md:block" : "block"
                 }`}
             >
-                <div className="flex items-center justify-between px-6 mx-auto">
+                <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
                         <Link to="/" className="relative z-50">
                             <img
@@ -70,7 +70,7 @@ export default function Navbar() {
 
                         <div className="hidden md:block">
                             <NavigationMenu>
-                                <NavigationMenuList className="flex items-center gap-2">
+                                <NavigationMenuList className="flex items-center justify-between gap-2">
                                     {navLinks.map((link) => {
                                         const isActive = location.pathname === link.href;
                                         return (

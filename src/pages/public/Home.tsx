@@ -164,9 +164,9 @@ export default function Home() {
     });
 
     return (
-        <div className="flex flex-col gap-16 lg:gap-24">
+        <div className="flex flex-col gap-14 lg:gap-24">
             {/* Hero */}
-            <section className="px-6 pt-6 md:px-20 flex flex-col justify-between">
+            <section className="px-6 pt-6 md:px-28 flex flex-col justify-between">
                 <div className="flex flex-col h-full relative z-20 my-auto">
                     <h1 className="text-5xl sm:text-4xl md:text-6xl lg:max-w-3xl font-medium tracking-tight leading-tight">
                         Validasi keahlianmu bersama kami
@@ -228,9 +228,9 @@ export default function Home() {
             </section>
 
             {/* About */}
-            <section className="px-6 md:px-20">
-                <div className="mb-12">
-                    <p className="leading-tight text-3xl md:text-4xl font-medium max-w-lg tracking-tight">Menjadi jembatan bagi Anda untuk meraih pengakuan resmi</p>
+            <section className="px-6 md:px-28">
+                <div className="mb-8 md:mb-12">
+                    <p className="lg:leading-tight text-2xl md:text-4xl font-medium max-w-xs lg:max-w-xl tracking-tight">Kami mendampingi Anda untuk meraih pengakuan resmi</p>
                 </div>
                 <div>
                     <img src="images/Hero-banner.webp" alt="lsp kodingka" className="h-125 rounded-3xl w-full object-cover object-top" />
@@ -249,179 +249,8 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Schemes */}
-            <section className="px-6 md:px-20" id="skema">
-                <div className="max-w-xl">
-                    <h2 className="mt-3 text-3xl md:text-4xl font-medium tracking-tight leading-tight">
-                        Pilih skema sertifikasi sesuai dengan kebutuhan Anda
-                    </h2>
-                    {/* Custom Tabs diletakkan di bawah judul section */}
-                    <CustomTabs
-                        defaultValue="overview"
-                        onValueChange={(value) => setActiveTab(value)}
-                        className="mt-6"
-                    >
-                        {(activeTab, setActiveTabState) => (
-                            <CustomTabsList className="flex gap-6">
-                                <CustomTabsTrigger
-                                    value="overview"
-                                    activeTab={activeTab}
-                                    onClick={() => setActiveTabState("overview")}
-                                    className="text-lg"
-                                >
-                                    Semua
-                                </CustomTabsTrigger>
-                                <CustomTabsTrigger
-                                    value="analytics"
-                                    activeTab={activeTab}
-                                    onClick={() => setActiveTabState("analytics")}
-                                    className="text-lg"
-                                >
-                                    Okupasi
-                                </CustomTabsTrigger>
-                                <CustomTabsTrigger
-                                    value="reports"
-                                    activeTab={activeTab}
-                                    onClick={() => setActiveTabState("reports")}
-                                    className="text-lg"
-                                >
-                                    Klaster
-                                </CustomTabsTrigger>
-                            </CustomTabsList>
-                        )}
-                    </CustomTabs>
-                </div>
-
-                <Separator className="my-6"></Separator>
-
-
-                <div>
-                    <div className="mt-8">
-                        <Carousel
-                            opts={{
-                                align: "start",
-                                loop: false,
-                            }}
-                            className="w-full relative"
-                        >
-                            <CarouselContent className="pb-4">
-                                {filteredSchemes.map((scheme) => (
-                                    <CarouselItem key={scheme.id} className="pl-4 md:basis-1/2 lg:basis-1/4">
-                                        <div className="border border-neutral-200 rounded-3xl w-full overflow-hidden bg-white mx-auto transform-gpu transition-shadow hover:shadow-sm">
-                                            <div className="relative w-full aspect-video overflow-hidden bg-neutral-100">
-                                                {scheme.isPopular && (
-                                                    <Badge className="absolute right-4 top-4 z-10">Populer</Badge>
-                                                )}
-                                                <img
-                                                    src={scheme.image}
-                                                    alt={`Sertifikasi ${scheme.title}`}
-                                                    className="w-full h-full object-cover transform-gpu"
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                />
-                                            </div>
-                                            <div className="mt-6 px-6 pb-6">
-                                                <h4 className="font-semibold text-lg text-neutral-900 line-clamp-1">
-                                                    {scheme.title}
-                                                </h4>
-                                                <div className="flex items-center gap-2 mt-2 text-neutral-600">
-                                                    <span className="text-sm">{scheme.categoryLabel}</span>
-                                                    <Separator orientation="vertical" className="h-4" />
-                                                    <span className="text-sm">{scheme.units}</span>
-                                                </div>
-                                                <div className="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between">
-                                                    <span className="text-xs text-neutral-600 font-medium">Investasi</span>
-                                                    <div className="font-semibold text-neutral-900 text-base">
-                                                        {scheme.price}
-                                                    </div>
-                                                </div>
-                                                <Button variant="default" className="rounded-full w-full mt-4">
-                                                    Detail
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </CarouselItem>
-                                ))}
-                            </CarouselContent>
-                            <div className="flex justify-center gap-2 px-4 mt-6">
-                                <CarouselPrevious className="static transform-none" />
-                                <CarouselNext className="static transform-none" />
-                            </div>
-                        </Carousel>
-                    </div>
-                </div>
-            </section>
-
-            <section className="px-6 md:px-20">
-                <div className="max-w-xl mb-12">
-                    <h2 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight text-neutral-900">
-                        Pahami bagaimana alur proses sertifikasi dilaksanakan
-                    </h2>
-                </div>
-
-                <div className="w-full mx-auto relative overflow-hidden group rounded-3xl min-h-112.5 flex items-center justify-center p-8">
-                    <img
-                        src="/images/background-gradient.webp"
-                        alt=""
-                        className="absolute inset-0 w-full h-full object-cover filter blur-2xl scale-110 group-hover:scale-125 transition-transform duration-700 ease-out pointer-events-none"
-                    />
-
-                    <div className="relative z-10 w-full max-w-md space-y-2">
-                        {[
-                            {
-                                step: "01",
-                                title: "Pendaftaran",
-                            },
-                            {
-                                step: "02",
-                                title: "Verifikasi Dokumen",
-                            },
-                            {
-                                step: "03",
-                                title: "Pembekalan & Asesmen",
-                            },
-                            {
-                                step: "04",
-                                title: "Keputusan Sertifikasi",
-                            },
-                            {
-                                step: "05",
-                                title: "Penerbitan Sertifikat",
-                            },
-                        ].map((item, index) => {
-                            const isFirst = index === 0;
-                            const isLast = index === 4;
-
-                            return (
-                                <div
-                                    key={index}
-                                    className="flex items-center justify-center"
-                                >
-                                    {/* Konten Teks dengan Radius Dinamis */}
-                                    <div className={`
-                                        flex items-center gap-3 py-4 px-5 bg-white backdrop-blur-sm w-72 shadow-sm transition-all
-                                        ${isFirst ? 'rounded-t-2xl' : ''}
-                                        ${isLast ? 'rounded-b-2xl' : ''}
-                                        ${!isFirst && !isLast ? 'rounded-md' : ''}
-                                    `}>
-                                        <div className="font-semibold text-sm">{item.step}</div>
-                                        <div className="w-px h-4 bg-neutral-300"></div>
-                                        <h3 className="font-medium text-sm text-neutral-900">
-                                            {item.title}
-                                        </h3>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-                <div className="md:max-w-2xl mt-6">
-                    <p className="text-lg tracking-tight">Seluruh tahapan dirancang secara sistematis untuk memastikan kompetensi peserta teruji secara objektif hingga penerbitan sertifikat.</p>
-                </div>
-            </section>
-
             {/* Why Choose Us */}
-            <section className="px-6 md:px-20">
+            <section className="px-6 md:px-28">
                 <div className="max-w-xl mb-12">
                     <h2 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight text-neutral-900">
                         Mengapa kami menjadi pilihan tepat bagi Anda
@@ -468,8 +297,198 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Schemes */}
+            <section className="px-6 md:px-28" id="skema">
+                <div className="max-w-xl">
+                    <h2 className="mt-3 text-3xl md:text-4xl font-medium tracking-tight leading-tight">
+                        Eksplorasi berbagai pilihan skema yang tersedia
+                    </h2>
+                    {/* Custom Tabs diletakkan di bawah judul section */}
+                    <CustomTabs
+                        defaultValue="overview"
+                        onValueChange={(value) => setActiveTab(value)}
+                        className="mt-6"
+                    >
+                        {(activeTab, setActiveTabState) => (
+                            <CustomTabsList className="flex gap-6">
+                                <CustomTabsTrigger
+                                    value="overview"
+                                    activeTab={activeTab}
+                                    onClick={() => setActiveTabState("overview")}
+                                    className="text-lg"
+                                >
+                                    Semua
+                                </CustomTabsTrigger>
+                                <CustomTabsTrigger
+                                    value="analytics"
+                                    activeTab={activeTab}
+                                    onClick={() => setActiveTabState("analytics")}
+                                    className="text-lg"
+                                >
+                                    Okupasi
+                                </CustomTabsTrigger>
+                                <CustomTabsTrigger
+                                    value="reports"
+                                    activeTab={activeTab}
+                                    onClick={() => setActiveTabState("reports")}
+                                    className="text-lg"
+                                >
+                                    Klaster
+                                </CustomTabsTrigger>
+                            </CustomTabsList>
+                        )}
+                    </CustomTabs>
+                </div>
+
+                <Separator className="mb-6"></Separator>
+
+
+                <div>
+                    <div className="mt-8">
+                        <Carousel
+                            opts={{
+                                align: "start",
+                                loop: false,
+                            }}
+                            className="w-full relative"
+                        >
+                            <CarouselContent className="pb-4 -ml-4 pr-6 md:pr-0">
+                                {filteredSchemes.map((scheme) => (
+                                    <CarouselItem key={scheme.id} className="basis-full sm:basis-1/2 lg:basis-1/4 flex">
+                                        {/* 1. Tambahkan flex flex-col h-full agar card mengisi tinggi container secara merata */}
+                                        <div className="border border-neutral-200 rounded-3xl w-full overflow-hidden bg-white mx-auto transform-gpu transition-shadow hover:shadow-sm flex flex-col h-full">
+
+                                            {/* Bagian Gambar */}
+                                            <div className="relative w-full aspect-video overflow-hidden bg-neutral-100 shrink-0">
+                                                <img
+                                                    src={scheme.image}
+                                                    alt={`Sertifikasi ${scheme.title}`}
+                                                    className="w-full h-full object-cover transform-gpu"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
+                                            </div>
+
+                                            {/* 2. Ubah container teks menjadi flex-col dan flex-1 agar tombol selalu sejajar di bawah */}
+                                            <div className="mt-4 px-6 pb-6 flex flex-col flex-1">
+
+                                                {/* BAGIAN ATAS: Judul dan Kategori */}
+                                                <div>
+                                                    {scheme.isPopular && (
+                                                        <Badge variant="secondary" className="rounded-sm">Populer</Badge>
+                                                    )}
+                                                    <h4 className="font-medium tracking-tight text-lg text-neutral-900 mt-2">
+                                                        {scheme.title}
+                                                    </h4>
+                                                    <div className="flex items-center gap-2 mt-1.5 text-neutral-500 text-sm">
+                                                        <span>{scheme.categoryLabel}</span>
+                                                        <span>•</span>
+                                                        <span>{scheme.units}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* BAGIAN BAWAH */}
+                                                <div className="mt-auto pt-6">
+
+                                                    {/* Menggunakan layout baris biasa dengan garis pemisah tipis di atasnya, tanpa kotak/border */}
+                                                    <div className="pt-4 flex items-center justify-between">
+                                                        <div className="font-semibold tracking-tight text-neutral-900 text-base">
+                                                            {scheme.price}
+                                                        </div>
+                                                        <Button variant="default" className="rounded-full px-6">
+                                                            Detail
+                                                        </Button>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="absolute -left-4 top-1 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md flex" />
+                            <CarouselNext className="absolute -right-4 top-1 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md flex" />
+                        </Carousel>
+                    </div>
+                </div>
+            </section>
+
+            <section className="px-6 md:px-28">
+                <div className="max-w-xl mb-8 md:mb-12">
+                    <h2 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight text-neutral-900">
+                        Pahami bagaimana alur proses sertifikasi dilaksanakan
+                    </h2>
+                </div>
+
+                <div className="w-full mx-auto relative overflow-hidden group rounded-3xl min-h-112.5 flex items-center justify-center p-8">
+                    <img
+                        src="/images/background-gradient.webp"
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover filter blur-2xl scale-110 group-hover:scale-125 transition-transform duration-700 ease-out pointer-events-none"
+                    />
+
+                    <div className="relative z-10 w-full max-w-md space-y-2">
+                        {[
+                            {
+                                step: "01",
+                                title: "Pendaftaran",
+                            },
+                            {
+                                step: "02",
+                                title: "Verifikasi Dokumen",
+                            },
+                            {
+                                step: "03",
+                                title: "Pembekalan & Pra-Asesmen",
+                            },
+                            {
+                                step: "04",
+                                title: "Asesmen",
+                            },
+                            {
+                                step: "05",
+                                title: "Keputusan Sertifikasi",
+                            },
+                            {
+                                step: "06",
+                                title: "Penerbitan Sertifikat",
+                            },
+                        ].map((item, index) => {
+                            const isFirst = index === 0;
+                            const isLast = index === 5;
+
+                            return (
+                                <div
+                                    key={index}
+                                    className="flex items-center justify-center"
+                                >
+                                    {/* Konten Teks dengan Radius Dinamis */}
+                                    <div className={`
+                                        flex items-center gap-3 py-4 px-5 bg-white backdrop-blur-sm w-72 shadow-sm transition-all
+                                        ${isFirst ? 'rounded-t-2xl' : ''}
+                                        ${isLast ? 'rounded-b-2xl' : ''}
+                                        ${!isFirst && !isLast ? 'rounded-md' : ''}
+                                    `}>
+                                        <div className="font-semibold text-sm">{item.step}</div>
+                                        <div className="w-px h-4 bg-neutral-300"></div>
+                                        <h3 className="font-medium text-sm text-neutral-900">
+                                            {item.title}
+                                        </h3>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="md:max-w-2xl mt-6">
+                    <p className="text-lg text-neutral-600 tracking-tight">Tahapan dirancang secara sistematis untuk memastikan kompetensi peserta teruji secara objektif hingga penerbitan sertifikat.</p>
+                </div>
+            </section>
+
+
+
             {/* FAQ */}
-            <section className="px-6 md:px-20">
+            <section className="px-6 md:px-28">
                 <div className="flex flex-col md:flex-row">
                     <div className="flex-2">
                         <h2 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight">
@@ -516,7 +535,7 @@ export default function Home() {
 
             {/* CTA */}
             <section className="bg-neutral-50">
-                <div className="px-6 md:px-20 py-20">
+                <div className="px-6 md:px-28 py-20">
                     <div>
                         <h2 className="leading-tight text-3xl md:text-4xl font-medium max-w-lg tracking-tight mb-6">
                             Sampaikan pertanyaan Anda, kami siap berdiskusi.

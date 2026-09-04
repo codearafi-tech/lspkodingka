@@ -3,7 +3,7 @@ import { MapPin, Mail } from "lucide-react";
 
 export default function Footer() {
     return (
-        <footer className="px-6 py-12 md:px-20 border-t border-neutral-200 bg-white">
+        <footer className="px-6 py-12 md:px-28 border-t border-neutral-200 bg-white">
             {/* Grid Utama */}
             <img src="/images/Logo-transparent.svg" alt="Logo LSP" className="w-10 h-auto" />
             <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-neutral-200 mt-6">

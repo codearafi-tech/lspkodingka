@@ -52,9 +52,9 @@ export function CustomTabsTrigger({ value, activeTab, onClick, className = "", c
         <button
             type="button"
             onClick={onClick}
-            className={`transition-all duration-200 cursor-pointer py-2 font-medium tracking-tight ${
+            className={`transition-all duration-200 py-2 cursor-pointer font-medium tracking-tight ${
                 isActive 
-                    ? "text-neutral-900" 
+                    ? "text-neutral-900 border-b-2 border-black " 
                     : "text-neutral-500 hover:text-neutral-900 bg-transparent"
             } ${className}`}
         >

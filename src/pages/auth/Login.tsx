@@ -40,7 +40,6 @@ export default function Login() {
             const resData = response.data;
             console.log("Login sukses response:", resData);
 
-            // Ekstraksi token & role dari struktur respons API yang fleksibel
             const accessToken = resData.accessToken || resData.access_token || resData.data?.accessToken || resData.data?.access_token;
             const refreshToken = resData.refreshToken || resData.refresh_token || resData.data?.refreshToken || resData.data?.refresh_token;
             const userRole = resData.role || resData.data?.role || resData.user?.role;
@@ -55,7 +54,6 @@ export default function Login() {
                 localStorage.setItem("role", userRole); 
             }
 
-            // Redirect berdasarkan role atau langsung ke dashboard umum
             if (userRole?.toLowerCase() === "lembaga") {
                 navigate("/admin/dashboard");
             } else if (userRole?.toLowerCase() === "asesor") {
