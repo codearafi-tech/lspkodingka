@@ -62,7 +62,7 @@ const mainNavItems = [
 const otherNavItems = [
     {
         title: "Pengaturan",
-        url: "/asesi/pengaturan",
+        url: "/asesi/settings",
         icon: Settings
     },
     {
@@ -74,7 +74,7 @@ const otherNavItems = [
 
 const user = {
     name: "", // Kosong karena belum diisi di pengaturan
-    email: "asesi@lsp.com",
+    email: "asesi@gmail.com",
     avatarUrl: "", // Kosong jika belum upload foto profil
 }
 

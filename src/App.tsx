@@ -2,9 +2,6 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import "./index.css";
 
-// Auth Guard
-import ProtectedRoute from "./pages/auth/ProtectedRoute";
-
 // Layouts
 import PublicLayout from "./components/layout/PublicLayout.tsx";
 import AdminLayout from "./components/layout/AdminLayout.tsx"; 
@@ -22,6 +19,7 @@ import SettingsAdmin from "./pages/admin/Settings";
 
 // Asesi Pages
 import DashboardAsesi from "./pages/asesi/Dashboard";
+import SettingsAsesi from "./pages/asesi/Settings";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -52,22 +50,19 @@ export function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* PROTECTED ADMIN ROUTES */}
-        <Route element={<ProtectedRoute allowedRoles={["lembaga", "admin"]} />}>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<DashboardAdmin />} />
-            <Route path="settings" element={<SettingsAdmin />} />
-          </Route>
+        {/* ADMIN ROUTES (Unprotected for Dev) */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<DashboardAdmin />} />
+          <Route path="settings" element={<SettingsAdmin />} />
         </Route>
 
-        {/* PROTECTED ASESI ROUTES */}
-        <Route element={<ProtectedRoute allowedRoles={["asesi"]} />}>
-          <Route path="/asesi" element={<AsesiLayout />}>
-            <Route path="dashboard" element={<DashboardAsesi />} />
-          </Route>
+        {/* ASESI ROUTES (Unprotected for Dev) */}
+        <Route path="/asesi" element={<AsesiLayout />}>
+          <Route path="dashboard" element={<DashboardAsesi />} />
+          <Route path="settings" element={<SettingsAsesi />} />
         </Route>
 
-        {/* FALLBACK ROUTE (Diarahkan ke login jika URL tidak cocok) */}
+        {/* FALLBACK ROUTE */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
