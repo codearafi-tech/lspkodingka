@@ -1,10 +1,14 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import "./index.css";
 
-// Layout
+// Auth Guard
+import ProtectedRoute from "./pages/auth/ProtectedRoute";
+
+// Layouts
 import PublicLayout from "./components/layout/PublicLayout.tsx";
 import AdminLayout from "./components/layout/AdminLayout.tsx"; 
+import AsesiLayout from "./components/layout/AsesiLayout.tsx";
 
 // Public Pages
 import Home from "./pages/public/Home";
@@ -14,11 +18,10 @@ import VerifyEmail from "./pages/auth/VerifyEmail";
 
 // Admin Pages
 import DashboardAdmin from "./pages/admin/Dashboard"; 
-import SettingsAdmin from "./pages/admin/Settings"
+import SettingsAdmin from "./pages/admin/Settings";
 
-// Asesi Layout
+// Asesi Pages
 import DashboardAsesi from "./pages/asesi/Dashboard";
-import AsesiLayout from "./components/layout/AsesiLayout.tsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -40,30 +43,35 @@ export function App() {
       <ScrollToTop />
 
       <Routes>
-        {/* PUBLIC */}
+        {/* PUBLIC ROUTES */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
         </Route>
 
-        <Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+
+        {/* PROTECTED ADMIN ROUTES */}
+        <Route element={<ProtectedRoute allowedRoles={["lembaga", "admin"]} />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<DashboardAdmin />} />
+            <Route path="settings" element={<SettingsAdmin />} />
+          </Route>
         </Route>
 
-        {/* ADMIN (Menggunakan AdminLayout & Sidebar Shadcn) */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<DashboardAdmin />} />
-          <Route path="settings" element={<SettingsAdmin />} />
+        {/* PROTECTED ASESI ROUTES */}
+        <Route element={<ProtectedRoute allowedRoles={["asesi"]} />}>
+          <Route path="/asesi" element={<AsesiLayout />}>
+            <Route path="dashboard" element={<DashboardAsesi />} />
+          </Route>
         </Route>
 
-        {/* ASESI */}
-        <Route path="/asesi" element={<AsesiLayout />}>
-          <Route path="/asesi/dashboard" element={<DashboardAsesi />}/>
-        </Route>
+        {/* FALLBACK ROUTE (Diarahkan ke login jika URL tidak cocok) */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
 export default App;
