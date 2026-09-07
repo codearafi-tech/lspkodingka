@@ -32,6 +32,10 @@ export default function Settings() {
         tandaTangan: null as File | null,
     })
 
+    // State URL untuk preview gambar dari backend
+    const [logoUrl, setLogoUrl] = useState<string>("")
+    const [signatureUrl, setSignatureUrl] = useState<string>("")
+
     const [provinces, setProvinces] = useState<RegionItem[]>([])
     const [regencies, setRegencies] = useState<RegionItem[]>([])
     const [districts, setDistricts] = useState<RegionItem[]>([])
@@ -40,36 +44,93 @@ export default function Settings() {
     const API_URL = import.meta.env.VITE_API_URL
 
     useEffect(() => {
-        // Ambil data profil user
-        axios.get(`${API_URL}/user/me`, {
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        })
-            .then(res => {
-                const profile = res.data.data || res.data
-                setFormData(prev => ({
-                    ...prev,
-                    email: profile.email || prev.email,
-                    institutionName: profile.institutionName || prev.institutionName,
-                    lspType: profile.lspType || prev.lspType,
-                    lspCode: profile.lspCode || prev.lspCode,
-                    phoneNumber: profile.phoneNumber || prev.phoneNumber,
-                    picName: profile.picName || prev.picName,
-                    provinsi: profile.provinsi || prev.provinsi,
-                    kota: profile.kota || prev.kota,
-                    kecamatan: profile.kecamatan || prev.kecamatan,
-                    kelurahan: profile.kelurahan || prev.kelurahan,
-                    alamatLengkap: profile.alamatLengkap || prev.alamatLengkap,
-                }))
-            })
-            .catch(err => console.error("Gagal memuat profil:", err))
+        const fetchInitialData = async () => {
+            const authHeader = { Authorization: `Bearer ${localStorage.getItem("token")}` }
 
-        // Ambil data provinsi
-        axios.get(`${API_URL}/region/provinces`)
-            .then(res => setProvinces(res.data.data || res.data))
-            .catch(err => console.error("Gagal memuat data provinsi:", err))
+            try {
+                // 1. Ambil data provinsi
+                const provRes = await axios.get(`${API_URL}/region/provinces`)
+                setProvinces(provRes.data.data || provRes.data)
+
+                // 2. Ambil data profil user
+                const profileRes = await axios.get(`${API_URL}/user/me`, { headers: authHeader })
+                const profile = profileRes.data.data || profileRes.data
+
+                setFormData({
+                    email: profile.email || "",
+                    password: "",
+                    institutionName: profile.institutionName || "",
+                    lspType: profile.lspType || "p1",
+                    lspCode: profile.lspCode || "",
+                    phoneNumber: profile.phoneNumber || "",
+                    picName: profile.picName || "",
+                    provinsi: profile.province || "",
+                    kota: profile.cityOrRegency || "",
+                    kecamatan: profile.district || "",
+                    kelurahan: profile.village || "",
+                    alamatLengkap: profile.addressDetail || "",
+                    logo: null,
+                    tandaTangan: null,
+                })
+
+                // 3. Ambil Presigned URL untuk Preview Logo & Tanda Tangan (jika ada)
+                if (profile.logoKey) {
+                    axios.get(`${API_URL}/user/me/uploads/logo`, { headers: authHeader })
+                        .then(res => setLogoUrl(res.data.url || res.data.uploadUrl || res.data))
+                        .catch(err => console.error("Gagal mengambil presigned URL logo:", err))
+                }
+
+                if (profile.chairSignatureKey || profile.signatureKey) {
+                    axios.get(`${API_URL}/user/me/uploads/chairSignature`, { headers: authHeader })
+                        .then(res => setSignatureUrl(res.data.url || res.data.uploadUrl || res.data))
+                        .catch(err => console.error("Gagal mengambil presigned URL tanda tangan:", err))
+                }
+
+                // 4. Load cascade wilayah
+                if (profile.province) {
+                    const regRes = await axios.get(`${API_URL}/region/regencies?provinceCode=${profile.province}`)
+                    setRegencies(regRes.data.data || regRes.data)
+                }
+                if (profile.cityOrRegency) {
+                    const distRes = await axios.get(`${API_URL}/region/districts?regencyCode=${profile.cityOrRegency}`)
+                    setDistricts(distRes.data.data || distRes.data)
+                }
+                if (profile.district) {
+                    const vilRes = await axios.get(`${API_URL}/region/villages?districtCode=${profile.district}`)
+                    setVillages(vilRes.data.data || vilRes.data)
+                }
+
+            } catch (err) {
+                console.error("Gagal memuat profil:", err)
+            }
+        }
+
+        fetchInitialData()
     }, [API_URL])
+
+    // Helper untuk mengunggah file via Presigned PUT URL
+    const uploadFileToPresignedUrl = async (field: "logo" | "chairSignature", file: File) => {
+        const authHeader = { Authorization: `Bearer ${localStorage.getItem("token")}` }
+
+        // Step A: Minta Presigned PUT URL dari Backend
+        const presignedRes = await axios.post(
+            `${API_URL}/user/me/uploads/${field}`,
+            {
+                contentType: file.type,
+                sizeBytes: file.size,
+            },
+            { headers: authHeader }
+        )
+
+        const uploadUrl = presignedRes.data.url || presignedRes.data.uploadUrl || presignedRes.data
+
+        // Step B: Direct Upload file biner ke Cloud Storage menggunakan PUT
+        await axios.put(uploadUrl, file, {
+            headers: {
+                "Content-Type": file.type,
+            },
+        })
+    }
 
     const handleProvinceChange = (provinceCode: string) => {
         setFormData(prev => ({
@@ -152,7 +213,7 @@ export default function Settings() {
         }
 
         try {
-            // 1. Update data teks profil
+            // 1. Update data teks
             const textData = {
                 email: formData.email,
                 ...(formData.password && { password: formData.password }),
@@ -161,11 +222,11 @@ export default function Settings() {
                 lspCode: formData.lspCode,
                 phoneNumber: formData.phoneNumber,
                 picName: formData.picName,
-                provinsi: formData.provinsi,
-                kota: formData.kota,
-                kecamatan: formData.kecamatan,
-                kelurahan: formData.kelurahan,
-                alamatLengkap: formData.alamatLengkap,
+                province: formData.provinsi,
+                cityOrRegency: formData.kota,
+                district: formData.kecamatan,
+                village: formData.kelurahan,
+                addressDetail: formData.alamatLengkap,
             }
 
             await axios.patch(`${API_URL}/user/me`, textData, {
@@ -175,28 +236,14 @@ export default function Settings() {
                 }
             })
 
-            // 2. Upload Logo jika ada file baru yang dipilih
+            // 2. Upload Logo jika ada file baru
             if (formData.logo) {
-                await axios.post(`${API_URL}/user/me/uploads/logo`, {
-                    key: formData.logo.name
-                }, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    }
-                })
+                await uploadFileToPresignedUrl("logo", formData.logo)
             }
 
-            // 3. Upload Tanda Tangan jika ada file baru yang dipilih
+            // 3. Upload Tanda Tangan jika ada file baru
             if (formData.tandaTangan) {
-                await axios.post(`${API_URL}/user/me/uploads/signature`, {
-                    key: formData.tandaTangan.name
-                }, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    }
-                })
+                await uploadFileToPresignedUrl("chairSignature", formData.tandaTangan)
             }
 
             toast.add({
@@ -336,7 +383,7 @@ export default function Settings() {
                         >
                             <SelectTrigger id="provinsi" className="w-full">
                                 <SelectValue placeholder="Pilih Provinsi">
-                                    {provinces.find(p => p.code === formData.provinsi)?.name || "Pilih Provinsi"}
+                                    {provinces.find(p => p.code === formData.provinsi)?.name || formData.provinsi || "Pilih Provinsi"}
                                 </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
@@ -361,7 +408,7 @@ export default function Settings() {
                         >
                             <SelectTrigger id="kota" className="w-full">
                                 <SelectValue placeholder="Pilih Kota/Kabupaten">
-                                    {regencies.find(r => r.code === formData.kota)?.name || "Pilih Kota/Kabupaten"}
+                                    {regencies.find(r => r.code === formData.kota)?.name || formData.kota || "Pilih Kota/Kabupaten"}
                                 </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
@@ -386,7 +433,7 @@ export default function Settings() {
                         >
                             <SelectTrigger id="kecamatan" className="w-full">
                                 <SelectValue placeholder="Pilih Kecamatan">
-                                    {districts.find(d => d.code === formData.kecamatan)?.name || "Pilih Kecamatan"}
+                                    {districts.find(d => d.code === formData.kecamatan)?.name || formData.kecamatan || "Pilih Kecamatan"}
                                 </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
@@ -411,7 +458,7 @@ export default function Settings() {
                         >
                             <SelectTrigger id="kelurahan" className="w-full">
                                 <SelectValue placeholder="Pilih Kelurahan/Desa">
-                                    {villages.find(v => v.code === formData.kelurahan)?.name || "Pilih Kelurahan/Desa"}
+                                    {villages.find(v => v.code === formData.kelurahan)?.name || formData.kelurahan || "Pilih Kelurahan/Desa"}
                                 </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
@@ -445,8 +492,13 @@ export default function Settings() {
                     <p className="text-sm text-muted-foreground mt-1">Unggah aset visual lembaga seperti logo resmi dan tanda tangan ketua.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Input Upload Logo */}
                     <div className="border border-dashed border-input rounded-lg p-4 flex flex-col items-center justify-center text-center bg-background">
-                        <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                        {logoUrl ? (
+                            <img src={logoUrl} alt="Logo Preview" className="h-20 w-auto mb-2 object-contain rounded border" />
+                        ) : (
+                            <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                        )}
                         <Label htmlFor="logo" className="font-medium cursor-pointer text-sm">Logo Lembaga</Label>
                         <span className="text-xs text-muted-foreground mb-3">PNG (Maks. 2MB)</span>
                         <Input
@@ -454,11 +506,21 @@ export default function Settings() {
                             type="file"
                             accept="image/*"
                             className="max-w-xs text-xs h-9 cursor-pointer"
-                            onChange={(e) => handleChange("logo", e.target.files?.[0] || null)}
+                            onChange={(e) => {
+                                const file = e.target.files?.[0] || null
+                                handleChange("logo", file)
+                                if (file) setLogoUrl(URL.createObjectURL(file))
+                            }}
                         />
                     </div>
+
+                    {/* Input Upload Tanda Tangan */}
                     <div className="border border-dashed border-input rounded-lg p-4 flex flex-col items-center justify-center text-center bg-background">
-                        <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                        {signatureUrl ? (
+                            <img src={signatureUrl} alt="Signature Preview" className="h-20 w-auto mb-2 object-contain rounded border" />
+                        ) : (
+                            <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                        )}
                         <Label htmlFor="tandaTangan" className="font-medium cursor-pointer text-sm">Tanda Tangan (Ketua LSP)</Label>
                         <span className="text-xs text-muted-foreground mb-3">PNG Transparan (Maks. 1MB)</span>
                         <Input
@@ -466,7 +528,11 @@ export default function Settings() {
                             type="file"
                             accept="image/*"
                             className="max-w-xs text-xs h-9 cursor-pointer"
-                            onChange={(e) => handleChange("tandaTangan", e.target.files?.[0] || null)}
+                            onChange={(e) => {
+                                const file = e.target.files?.[0] || null
+                                handleChange("tandaTangan", file)
+                                if (file) setSignatureUrl(URL.createObjectURL(file))
+                            }}
                         />
                     </div>
                 </div>

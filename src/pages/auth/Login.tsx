@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import {
     Field,
@@ -38,7 +38,6 @@ export default function Login() {
             });
 
             const resData = response.data;
-            console.log("Login sukses response:", resData);
 
             const accessToken = resData.accessToken || resData.access_token || resData.data?.accessToken || resData.data?.access_token;
             const refreshToken = resData.refreshToken || resData.refresh_token || resData.data?.refreshToken || resData.data?.refresh_token;
@@ -72,12 +71,14 @@ export default function Login() {
     };
 
     return (
-        <section className="min-h-screen w-full p-6 bg-linear-to-br from-sky-50 via-background to-indigo-50/40">
-            <div className="flex flex-col gap-6 max-w-md md:mt-2 mx-auto my-auto border p-6 md:p-10 rounded-3xl bg-white shadow-xs">
+        /* PERBAIKAN 1: Tambahkan flex, items-center, dan justify-center di kontainer luar */
+        <section className="min-h-svh p-6 flex flex-col items-center justify-center bg-linear-to-br from-sky-50 via-background to-indigo-50/40">
+            {/* PERBAIKAN 2: Hapus 'my-auto md:mt-2' agar card tidak ditarik ke atas */}
+            <div className="flex flex-col gap-6 w-full max-w-md border p-6 md:p-10 rounded-3xl bg-white shadow-xs">
                 <img
                     src="/images/Logo.png"
                     alt="LSP KODINGKA LOGO"
-                    className="h-8 w-auto object-contain"
+                    className="h-8 w-auto object-contain mx-auto"
                 />
 
                 <div>
@@ -94,7 +95,7 @@ export default function Login() {
                         )}
 
                         <Field>
-                            <FieldLabel>Email</FieldLabel>
+                            <FieldLabel htmlFor="email">Email</FieldLabel>
                             <Input
                                 id="email"
                                 type="email"
@@ -107,7 +108,7 @@ export default function Login() {
 
                         <Field>
                             <div className="flex items-center justify-between">
-                                <FieldLabel>Password</FieldLabel>
+                                <FieldLabel htmlFor="password">Password</FieldLabel>
                                 <a
                                     href="#lupa-password"
                                     className="text-xs text-sky-700 hover:underline"
@@ -117,7 +118,7 @@ export default function Login() {
                             </div>
                             <InputGroup>
                                 <InputGroupInput
-                                    id="Password"
+                                    id="password"
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Masukkan Password"
                                     value={password}
@@ -156,38 +157,22 @@ export default function Login() {
                             )}
                         </Button>
 
-                        <div className="relative flex items-center justify-center">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-neutral-200"></div>
-                            </div>
-                            <div className="relative bg-background px-3 text-xs text-neutral-500">
-                                atau
-                            </div>
-                        </div>
-
-                        <div>
-                            <Button type="button" className="bg-white text-foreground border-border hover:bg-secondary/30 h-10 w-full flex items-center justify-center gap-2 cursor-pointer">
-                                <img src="/images/SiapKerja.png" alt="siapkerja" className="w-4 h-4 object-contain" />
-                                <span>Masuk dengan SiapKerja</span>
-                            </Button>
-                        </div>
-
                         <div className="text-center text-sm text-neutral-500">
                             Belum punya akun?{" "}
-                            <a href="/register" className="text-sky-700 font-medium hover:underline">
+                            <Link to="/register" className="text-sky-700 font-medium hover:underline">
                                 Registrasi
-                            </a>
+                            </Link>
                         </div>
 
                         <div className="text-center text-xs text-neutral-400 px-4">
                             Dengan melanjutkan, kamu menyetujui{" "}
-                            <a href="/terms" className="underline hover:text-neutral-600">
+                            <Link to="/terms" className="underline hover:text-neutral-600">
                                 Syarat & Ketentuan
-                            </a>{" "}
+                            </Link>{" "}
                             serta{" "}
-                            <a href="/privacy" className="underline hover:text-neutral-600">
+                            <Link to="/privacy" className="underline hover:text-neutral-600">
                                 Kebijakan Privasi
-                            </a>
+                            </Link>
                             .
                         </div>
                     </FieldGroup>
