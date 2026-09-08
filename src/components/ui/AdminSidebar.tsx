@@ -13,6 +13,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import {
   DropdownMenu,
@@ -25,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
-  LayoutDashboard,
+  LayoutGrid,
   Users,
   FileText,
   LogOut,
@@ -35,14 +36,14 @@ import {
   ChevronRight,
   HelpCircle,
 } from "lucide-react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import axios from "axios"
 
 const mainNavItems = [
   {
     title: "Dashboard",
     url: "/admin/dashboard",
-    icon: LayoutDashboard,
+    icon: LayoutGrid,
   },
   {
     title: "Manajemen",
@@ -133,7 +134,6 @@ export function AdminSidebar() {
   const handleLogout = async () => {
     const token = localStorage.getItem("token")
 
-    // 1. Jika backend kamu punya endpoint logout (Opsional)
     if (token) {
       try {
         await axios.post(
@@ -151,11 +151,9 @@ export function AdminSidebar() {
       }
     }
 
-    // 2. Bersihkan penyimpanan lokal
     localStorage.removeItem("token")
-    localStorage.removeItem("user") // bersihkan item lain jika ada
+    localStorage.removeItem("user")
 
-    // 3. Redireksi ke halaman login
     navigate("/login", { replace: true })
   }
 
@@ -172,7 +170,7 @@ export function AdminSidebar() {
       return (
         <SidebarMenuItem key={item.title}>
           <details className="group/collapsible" open={isSubActive}>
-            <summary className="flex w-full cursor-pointer list-none items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm transition-colors hover:bg-slate-100 hover:text-sidebar-accent-foreground [&::-webkit-details-marker]:hidden">
+            <summary className="flex w-full cursor-pointer list-none items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm transition-colors text-neutral-600 hover:bg-slate-100 hover:text-blue-600 [&::-webkit-details-marker]:hidden">
               <item.icon className="h-4 w-4 shrink-0" />
               <span className="flex-1 truncate">{item.title}</span>
               <ChevronRight className="ml-auto size-4 shrink-0 transition-transform duration-200 group-open/collapsible:rotate-90" />
@@ -182,10 +180,12 @@ export function AdminSidebar() {
                 const isSubItemActive = location.pathname === sub.url
                 return (
                   <SidebarMenuSubItem key={sub.title}>
-                    <SidebarMenuSubButton isActive={isSubItemActive}>
-                      <Link to={sub.url} className="flex w-full items-center">
-                        <span>{sub.title}</span>
-                      </Link>
+                    <SidebarMenuSubButton
+                      isActive={isSubItemActive}
+                      onClick={() => navigate(sub.url)}
+                      className="cursor-pointer text-neutral-600 hover:bg-slate-100 hover:text-blue-600"
+                    >
+                      <span>{sub.title}</span>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 )
@@ -198,14 +198,14 @@ export function AdminSidebar() {
 
     return (
       <SidebarMenuItem key={item.title}>
-        <SidebarMenuButton isActive={isActive} tooltip={item.title}>
-          <Link
-            to={item.url!}
-            className="flex w-full items-center gap-2 overflow-hidden"
-          >
-            <item.icon className="h-4 w-4 shrink-0" />
-            <span className="truncate">{item.title}</span>
-          </Link>
+        <SidebarMenuButton
+          isActive={isActive}
+          tooltip={item.title}
+          onClick={() => navigate(item.url!)}
+          className="cursor-pointer"
+        >
+          <item.icon className="h-4 w-4 shrink-0" />
+          <span className="truncate">{item.title}</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
     )
@@ -214,16 +214,13 @@ export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
       {/* Header Statis Aplikasi */}
-      <SidebarHeader className="my-auto flex h-16 justify-center border-b px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
-        <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-            <img src="/images/Logo-transparent.svg" alt="lsp kodingka" />
+      <SidebarHeader className="my-auto flex h-16 border-b justify-center px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
+        <div className="flex items-center justify-between overflow-hidden">
+          <div className="flex w-28 items-center ">
+            <img src="/images/Kredo-Logo.png" alt="Kredo Logo" />
           </div>
-          <div className="flex flex-col gap-0.5 group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-sm font-semibold">LSP KODINGKA</span>
-            <span className="truncate text-xs text-muted-foreground">
-              Admin Portal
-            </span>
+          <div>
+            <SidebarTrigger />
           </div>
         </div>
       </SidebarHeader>

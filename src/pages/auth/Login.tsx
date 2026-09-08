@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { AxiosError } from "axios"
-import apiClient from "@/lib/axios" // 1. Pakai apiClient terpusat
+import apiClient from "@/lib/axios" // Menggunakan instance apiClient terpusat
 
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -28,41 +28,57 @@ export default function Login() {
     setErrorMessage("")
 
     try {
-      // 2. Tembak endpoint login via apiClient
       const response = await apiClient.post("/auth/login", {
         email,
         password,
       })
 
-      const resData = response.data
+      // 1. Ekstrak data utama (menangani pembungkus data.data atau data langsung)
+      const responseBody = response.data?.data || response.data
 
-      // 3. Ekstraksi Access Token & Role
+      // 2. Cari Access Token secara presisi
       const accessToken =
-        resData.accessToken ||
-        resData.access_token ||
-        resData.data?.accessToken ||
-        resData.data?.access_token ||
-        resData.token
+        responseBody?.accessToken ||
+        responseBody?.access_token ||
+        responseBody?.token ||
+        response.data?.token
 
-      const userRole = resData.role || resData.data?.role || resData.user?.role
+      // 3. Cari Refresh Token (jika backend mengirim lewat JSON response)
+      const refreshToken =
+        responseBody?.refreshToken ||
+        responseBody?.refresh_token ||
+        response.data?.refreshToken
 
-      // 4. Simpan Access Token ke localStorage (Interceptor Axios akan membacanya)
+      // 4. Cari User Role
+      const userRole =
+        responseBody?.role || responseBody?.user?.role || response.data?.role
+
+      // 5. Validasi & Simpan ke LocalStorage
       if (accessToken) {
         localStorage.setItem("token", accessToken)
+      } else {
+        console.error(
+          "Access token tidak ditemukan dalam response API:",
+          response.data
+        )
+      }
+
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken)
       }
 
       if (userRole) {
         localStorage.setItem("role", userRole)
       }
 
-      // 5. Redirect sesuai role
+      // 6. Redirect berdasarkan Role
       const normalizedRole = userRole?.toLowerCase()
       if (normalizedRole === "lembaga" || normalizedRole === "admin") {
-        navigate("/admin/dashboard")
+        navigate("/admin/dashboard", { replace: true })
       } else if (normalizedRole === "asesor") {
-        navigate("/asesor/dashboard")
+        navigate("/asesor/dashboard", { replace: true })
       } else {
-        navigate("/asesi/dashboard")
+        navigate("/asesi/dashboard", { replace: true })
       }
     } catch (error: unknown) {
       const err = error as AxiosError<{ message?: string }>

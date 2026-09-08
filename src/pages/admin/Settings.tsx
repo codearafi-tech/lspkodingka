@@ -11,9 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { Upload, Save, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/toast"
+import { Separator } from "@/components/ui/separator"
 
 interface RegionItem {
   code: string
@@ -29,10 +29,10 @@ export default function Settings() {
     lspCode: "",
     phoneNumber: "",
     picName: "",
-    provinsi: "",
-    kota: "",
-    kecamatan: "",
-    kelurahan: "",
+    provinsi: "", // Menyimpan Code (misal: "32")
+    kota: "", // Menyimpan Code (misal: "32.74")
+    kecamatan: "", // Menyimpan Code
+    kelurahan: "", // Menyimpan Code
     alamatLengkap: "",
     logo: null as File | null,
     tandaTangan: null as File | null,
@@ -51,6 +51,11 @@ export default function Settings() {
 
   const API_URL = import.meta.env.VITE_API_URL
 
+  // Helper untuk mengubah Code menjadi Name pada UI SelectValue
+  const getRegionName = (list: RegionItem[], code: string) => {
+    return list.find((item) => item.code === code)?.name || undefined
+  }
+
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true)
@@ -58,13 +63,14 @@ export default function Settings() {
       const authHeader = { Authorization: `Bearer ${token}` }
 
       try {
-        // 1. Fetch Provinces & Profile secara paralel
         const [provRes, profileRes] = await Promise.all([
           axios.get(`${API_URL}/region/provinces`),
           axios.get(`${API_URL}/user/me`, { headers: authHeader }),
         ])
 
-        setProvinces(provRes.data.data || provRes.data)
+        const provList: RegionItem[] = provRes.data.data || provRes.data
+        setProvinces(provList)
+
         const profile = profileRes.data.data || profileRes.data
 
         setFormData((prev) => ({
@@ -82,7 +88,6 @@ export default function Settings() {
           alamatLengkap: profile.addressDetail || "",
         }))
 
-        // 2. Fetch Presigned Preview URLs
         if (profile.logoKey) {
           axios
             .get(`${API_URL}/user/me/uploads/logo`, { headers: authHeader })
@@ -105,25 +110,37 @@ export default function Settings() {
             )
         }
 
-        // 3. Sequential Cascade Loading untuk Wilayah Terpilih
+        const regionPromises = []
+
         if (profile.province) {
-          const regRes = await axios.get(
-            `${API_URL}/region/regencies?provinceCode=${profile.province}`
+          regionPromises.push(
+            axios
+              .get(
+                `${API_URL}/region/regencies?provinceCode=${profile.province}`
+              )
+              .then((res) => setRegencies(res.data.data || res.data))
           )
-          setRegencies(regRes.data.data || regRes.data)
         }
         if (profile.cityOrRegency) {
-          const distRes = await axios.get(
-            `${API_URL}/region/districts?regencyCode=${profile.cityOrRegency}`
+          regionPromises.push(
+            axios
+              .get(
+                `${API_URL}/region/districts?regencyCode=${profile.cityOrRegency}`
+              )
+              .then((res) => setDistricts(res.data.data || res.data))
           )
-          setDistricts(distRes.data.data || distRes.data)
         }
         if (profile.district) {
-          const vilRes = await axios.get(
-            `${API_URL}/region/villages?districtCode=${profile.district}`
+          regionPromises.push(
+            axios
+              .get(
+                `${API_URL}/region/villages?districtCode=${profile.district}`
+              )
+              .then((res) => setVillages(res.data.data || res.data))
           )
-          setVillages(vilRes.data.data || vilRes.data)
         }
+
+        await Promise.all(regionPromises)
       } catch (err) {
         console.error("Gagal memuat profil:", err)
         toast.add({
@@ -139,7 +156,6 @@ export default function Settings() {
     fetchInitialData()
   }, [API_URL])
 
-  // Cleanup Object URL untuk mencegah memory leak
   useEffect(() => {
     return () => {
       if (logoUrl.startsWith("blob:")) URL.revokeObjectURL(logoUrl)
@@ -166,8 +182,8 @@ export default function Settings() {
     const uploadUrl =
       presignedRes.data.url || presignedRes.data.uploadUrl || presignedRes.data
 
-    // Direct upload ke S3 / Storage (Tanpa Authorization header aplikasi)
-    await axios.put(uploadUrl, file, {
+    const cleanAxios = axios.create()
+    await cleanAxios.put(uploadUrl, file, {
       headers: {
         "Content-Type": file.type,
       },
@@ -242,7 +258,6 @@ export default function Settings() {
     e.preventDefault()
 
     const requiredFields = [
-      { key: "email", label: "Email" },
       { key: "institutionName", label: "Nama LSP" },
       { key: "lspType", label: "Jenis LSP" },
       { key: "lspCode", label: "Kode LSP / Lisensi" },
@@ -273,8 +288,9 @@ export default function Settings() {
 
     try {
       const textData = {
-        email: formData.email,
-        ...(formData.password && { password: formData.password }),
+        ...(formData.password.trim()
+          ? { password: formData.password.trim() }
+          : {}),
         institutionName: formData.institutionName,
         lspType: formData.lspType,
         lspCode: formData.lspCode,
@@ -304,13 +320,13 @@ export default function Settings() {
 
       toast.add({
         type: "success",
-        description: "Pengaturan lembaga berhasil diperbarui.",
+        description: "Pengaturan berhasil diperbarui.",
       })
     } catch (error) {
       console.error(error)
       toast.add({
         type: "error",
-        description: "Terjadi kesalahan saat menyimpan perubahan.",
+        description: "Terjadi kesalahan saat menyimpan data.",
         priority: "high",
       })
     } finally {
@@ -327,346 +343,447 @@ export default function Settings() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 px-10 pb-6">
-      <div>
-        <h1 className="text-lg font-semibold tracking-tight">
+    <div>
+      <div className="pb-6">
+        <h1 className="text-xl font-semibold tracking-tight text-black">
           Pengaturan Lembaga
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Kelola informasi akun, legalitas, alamat, dan operasional LSP Anda di
-          sini.
+          Kelola akun Anda.
         </p>
       </div>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-8 rounded-xl border border-neutral-200 bg-white p-6"
+      >
+        <div className="space-y-10">
+          {/* 1. Informasi Akun */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="space-y-1">
+              <h2 className="text-base font-medium text-black">
+                Informasi Akun
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Kredensial login admin.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-medium text-black"
+                >
+                  Email <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  disabled
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className="w-full bg-background"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-black"
+                >
+                  Password Baru{" "}
+                  <span className="font-normal text-muted-foreground">
+                    (Opsional)
+                  </span>
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Isi untuk mengganti"
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  className="w-full bg-background"
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* 1. Informasi Akun */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-base leading-none font-semibold">
-            Informasi Akun
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Kredensial login untuk akses administrator LSP.
-          </p>
+          <Separator />
+
+          {/* 2. Legalitas Lembaga */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="space-y-1">
+              <h2 className="text-base font-medium text-black">Legalitas</h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Identitas lisensi BNSP.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="institutionName"
+                  className="text-sm font-medium text-black"
+                >
+                  Nama LSP <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="institutionName"
+                  value={formData.institutionName}
+                  onChange={(e) =>
+                    handleChange("institutionName", e.target.value)
+                  }
+                  className="w-full bg-background"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="lspType"
+                  className="text-sm font-medium text-black"
+                >
+                  Jenis LSP <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.lspType}
+                  onValueChange={(val) => {
+                    if (val) handleChange("lspType", val)
+                  }}
+                >
+                  <SelectTrigger id="lspType" className="w-full bg-background">
+                    <SelectValue placeholder="Pilih Jenis" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="p1">P1 - Pihak Pertama</SelectItem>
+                    <SelectItem value="p2">P2 - Pihak Kedua</SelectItem>
+                    <SelectItem value="p3">P3 - Pihak Ketiga</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label
+                  htmlFor="lspCode"
+                  className="text-sm font-medium text-black"
+                >
+                  Kode LSP / No. Lisensi{" "}
+                  <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="lspCode"
+                  value={formData.lspCode}
+                  onChange={(e) => handleChange("lspCode", e.target.value)}
+                  className="w-full bg-background"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* 3. Kontak & Alamat */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="space-y-1">
+              <h2 className="text-base font-medium text-black">
+                Kontak & Lokasi
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Kontak PIC dan alamat operasional.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="picName"
+                  className="text-sm font-medium text-black"
+                >
+                  Nama PIC <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="picName"
+                  value={formData.picName}
+                  onChange={(e) => handleChange("picName", e.target.value)}
+                  className="w-full bg-background"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="phoneNumber"
+                  className="text-sm font-medium text-black"
+                >
+                  Nomor Telepon <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleChange("phoneNumber", e.target.value)}
+                  className="w-full bg-background"
+                />
+              </div>
+
+              {/* Provinsi */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="provinsi"
+                  className="text-sm font-medium text-black"
+                >
+                  Provinsi <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.provinsi}
+                  onValueChange={(val) => {
+                    if (val) handleProvinceChange(val)
+                  }}
+                >
+                  <SelectTrigger id="provinsi" className="w-full bg-background">
+                    <SelectValue placeholder="Pilih Provinsi">
+                      {getRegionName(provinces, formData.provinsi)}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {provinces.map((prov) => (
+                      <SelectItem key={prov.code} value={prov.code}>
+                        {prov.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Kota/Kabupaten */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="kota"
+                  className="text-sm font-medium text-black"
+                >
+                  Kota/Kabupaten <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.kota}
+                  onValueChange={(val) => {
+                    if (val) handleRegencyChange(val)
+                  }}
+                  disabled={!formData.provinsi}
+                >
+                  <SelectTrigger id="kota" className="w-full bg-background">
+                    <SelectValue placeholder="Pilih Kota/Kabupaten">
+                      {getRegionName(regencies, formData.kota)}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regencies.map((reg) => (
+                      <SelectItem key={reg.code} value={reg.code}>
+                        {reg.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Kecamatan */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="kecamatan"
+                  className="text-sm font-medium text-black"
+                >
+                  Kecamatan <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.kecamatan}
+                  onValueChange={(val) => {
+                    if (val) handleDistrictChange(val)
+                  }}
+                  disabled={!formData.kota}
+                >
+                  <SelectTrigger
+                    id="kecamatan"
+                    className="w-full bg-background"
+                  >
+                    <SelectValue placeholder="Pilih Kecamatan">
+                      {getRegionName(districts, formData.kecamatan)}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {districts.map((dist) => (
+                      <SelectItem key={dist.code} value={dist.code}>
+                        {dist.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Kelurahan/Desa */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="kelurahan"
+                  className="text-sm font-medium text-black"
+                >
+                  Kelurahan/Desa <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.kelurahan}
+                  onValueChange={(val) => {
+                    if (val) handleChange("kelurahan", val)
+                  }}
+                  disabled={!formData.kecamatan}
+                >
+                  <SelectTrigger
+                    id="kelurahan"
+                    className="w-full bg-background"
+                  >
+                    <SelectValue placeholder="Pilih Kelurahan/Desa">
+                      {getRegionName(villages, formData.kelurahan)}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {villages.map((vil) => (
+                      <SelectItem key={vil.code} value={vil.code}>
+                        {vil.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label
+                  htmlFor="alamatLengkap"
+                  className="text-sm font-medium text-black"
+                >
+                  Alamat Lengkap <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  id="alamatLengkap"
+                  rows={3}
+                  placeholder="Gedung, jalan, nomor..."
+                  value={formData.alamatLengkap}
+                  onChange={(e) =>
+                    handleChange("alamatLengkap", e.target.value)
+                  }
+                  className="w-full resize-none bg-background"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* 4. Aset Visual */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="space-y-1">
+              <h2 className="text-base font-medium text-black">Aset Visual</h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Logo dan tanda tangan sertifikat.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-6 md:col-span-2 md:grid-cols-2">
+              {/* Logo Upload */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-black">
+                  Logo Lembaga
+                </Label>
+                <div className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/80 bg-muted/20 p-4 text-center transition-all hover:border-primary/50 hover:bg-muted/40">
+                  {logoUrl ? (
+                    <div className="group relative flex h-32 w-full items-center justify-center rounded-lg border bg-background p-2">
+                      <img
+                        src={logoUrl}
+                        alt="Logo Preview"
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="my-6 flex flex-col items-center">
+                      <p className="text-xs text-muted-foreground">
+                        Pilih file logo
+                      </p>
+                    </div>
+                  )}
+
+                  <Label
+                    htmlFor="logo"
+                    className="mt-2 inline-flex h-8 cursor-pointer items-center justify-center rounded-md bg-secondary px-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+                  >
+                    <Upload className="mr-2 h-3.5 w-3.5" />
+                    {logoUrl ? "Ganti Logo" : "Upload Gambar"}
+                  </Label>
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    PNG / JPG (Maks. 2MB)
+                  </p>
+
+                  <Input
+                    id="logo"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null
+                      handleChange("logo", file)
+                      if (file) setLogoUrl(URL.createObjectURL(file))
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Tanda Tangan Upload */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-black">
+                  Tanda Tangan Ketua
+                </Label>
+                <div className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/80 bg-muted/20 p-4 text-center transition-all hover:border-primary/50 hover:bg-muted/40">
+                  {signatureUrl ? (
+                    <div className="group relative flex h-32 w-full items-center justify-center rounded-lg border bg-background p-2">
+                      <img
+                        src={signatureUrl}
+                        alt="Signature Preview"
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="my-6 flex flex-col items-center">
+                      <p className="text-xs text-muted-foreground">
+                        Pilih file tanda tangan
+                      </p>
+                    </div>
+                  )}
+
+                  <Label
+                    htmlFor="tandaTangan"
+                    className="mt-2 inline-flex h-8 cursor-pointer items-center justify-center rounded-md bg-secondary px-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+                  >
+                    <Upload className="mr-2 h-3.5 w-3.5" />
+                    {signatureUrl ? "Ganti Tanda Tangan" : "Upload Gambar"}
+                  </Label>
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    PNG Transparan (Maks. 1MB)
+                  </p>
+
+                  <Input
+                    id="tandaTangan"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null
+                      handleChange("tandaTangan", file)
+                      if (file) setSignatureUrl(URL.createObjectURL(file))
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="email">
-              Email <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password Baru (Opsional)</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Kosongkan jika tidak ingin mengubah"
-              onChange={(e) => handleChange("password", e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
 
-      <Separator />
-
-      {/* 2. Legalitas Lembaga */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-base leading-none font-semibold">
-            Legalitas Lembaga
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Identitas resmi dan lisensi lembaga sertifikasi profesi.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="institutionName">
-              Nama LSP <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="institutionName"
-              value={formData.institutionName}
-              onChange={(e) => handleChange("institutionName", e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lspType">
-              Jenis LSP <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={formData.lspType}
-              onValueChange={(val) => {
-                if (val) handleChange("lspType", val)
-              }}
-            >
-              <SelectTrigger id="lspType" className="w-full">
-                <SelectValue placeholder="Pilih Jenis LSP" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="p1">P1 - Pihak Pertama</SelectItem>
-                <SelectItem value="p2">P2 - Pihak Kedua</SelectItem>
-                <SelectItem value="p3">P3 - Pihak Ketiga</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lspCode">
-              Kode LSP / Lisensi <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="lspCode"
-              value={formData.lspCode}
-              onChange={(e) => handleChange("lspCode", e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* 3. Kontak & Alamat */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-base leading-none font-semibold">
-            Kontak & Alamat
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Informasi narahubung serta lokasi operasional lembaga.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="picName">
-              Nama PIC <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="picName"
-              value={formData.picName}
-              onChange={(e) => handleChange("picName", e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">
-              Nomor Telepon <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={(e) => handleChange("phoneNumber", e.target.value)}
-            />
-          </div>
-
-          {/* Provinsi */}
-          <div className="space-y-2">
-            <Label htmlFor="provinsi">
-              Provinsi <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={formData.provinsi}
-              onValueChange={(val) => {
-                if (val) handleProvinceChange(val)
-              }}
-            >
-              <SelectTrigger id="provinsi" className="w-full">
-                <SelectValue placeholder="Pilih Provinsi" />
-              </SelectTrigger>
-              <SelectContent>
-                {provinces.map((prov) => (
-                  <SelectItem key={prov.code} value={prov.code}>
-                    {prov.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Kota/Kabupaten */}
-          <div className="space-y-2">
-            <Label htmlFor="kota">
-              Kota/Kabupaten <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={formData.kota}
-              onValueChange={(val) => {
-                if (val) handleRegencyChange(val)
-              }}
-              disabled={!formData.provinsi}
-            >
-              <SelectTrigger id="kota" className="w-full">
-                <SelectValue placeholder="Pilih Kota/Kabupaten" />
-              </SelectTrigger>
-              <SelectContent>
-                {regencies.map((reg) => (
-                  <SelectItem key={reg.code} value={reg.code}>
-                    {reg.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Kecamatan */}
-          <div className="space-y-2">
-            <Label htmlFor="kecamatan">
-              Kecamatan <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={formData.kecamatan}
-              onValueChange={(val) => {
-                if (val) handleDistrictChange(val)
-              }}
-              disabled={!formData.kota}
-            >
-              <SelectTrigger id="kecamatan" className="w-full">
-                <SelectValue placeholder="Pilih Kecamatan" />
-              </SelectTrigger>
-              <SelectContent>
-                {districts.map((dist) => (
-                  <SelectItem key={dist.code} value={dist.code}>
-                    {dist.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Kelurahan/Desa */}
-          <div className="space-y-2">
-            <Label htmlFor="kelurahan">
-              Kelurahan/Desa <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={formData.kelurahan}
-              onValueChange={(val) => {
-                if (val) handleChange("kelurahan", val)
-              }}
-              disabled={!formData.kecamatan}
-            >
-              <SelectTrigger id="kelurahan" className="w-full">
-                <SelectValue placeholder="Pilih Kelurahan/Desa" />
-              </SelectTrigger>
-              <SelectContent>
-                {villages.map((vil) => (
-                  <SelectItem key={vil.code} value={vil.code}>
-                    {vil.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="alamatLengkap">
-              Alamat Lengkap <span className="text-red-500">*</span>
-            </Label>
-            <Textarea
-              id="alamatLengkap"
-              placeholder="Nama jalan, gedung, nomor kantor..."
-              value={formData.alamatLengkap}
-              onChange={(e) => handleChange("alamatLengkap", e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* 4. Ruang Lingkup & Operasional */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-base leading-none font-semibold">
-            Ruang Lingkup & Operasional
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Unggah aset visual lembaga seperti logo resmi dan tanda tangan
-            ketua.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Logo */}
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-input bg-background p-4 text-center">
-            {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt="Logo Preview"
-                className="mb-2 h-20 w-auto rounded border object-contain"
-              />
+        <div className="flex items-center justify-end border-t pt-6">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            size="lg"
+            className="gap-2 shadow-none"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
+              <Save className="h-4 w-4" />
             )}
-            <Label
-              htmlFor="logo"
-              className="cursor-pointer text-sm font-medium"
-            >
-              Logo Lembaga
-            </Label>
-            <span className="mb-3 text-xs text-muted-foreground">
-              PNG (Maks. 2MB)
-            </span>
-            <Input
-              id="logo"
-              type="file"
-              accept="image/*"
-              className="h-9 max-w-xs cursor-pointer text-xs"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null
-                handleChange("logo", file)
-                if (file) setLogoUrl(URL.createObjectURL(file))
-              }}
-            />
-          </div>
-
-          {/* Tanda Tangan */}
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-input bg-background p-4 text-center">
-            {signatureUrl ? (
-              <img
-                src={signatureUrl}
-                alt="Signature Preview"
-                className="mb-2 h-20 w-auto rounded border object-contain"
-              />
-            ) : (
-              <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
-            )}
-            <Label
-              htmlFor="tandaTangan"
-              className="cursor-pointer text-sm font-medium"
-            >
-              Tanda Tangan (Ketua LSP)
-            </Label>
-            <span className="mb-3 text-xs text-muted-foreground">
-              PNG Transparan (Maks. 1MB)
-            </span>
-            <Input
-              id="tandaTangan"
-              type="file"
-              accept="image/*"
-              className="h-9 max-w-xs cursor-pointer text-xs"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null
-                handleChange("tandaTangan", file)
-                if (file) setSignatureUrl(URL.createObjectURL(file))
-              }}
-            />
-          </div>
+            {isSubmitting ? "Menyimpan..." : "Simpan"}
+          </Button>
         </div>
-      </div>
-
-      {/* Tombol Simpan */}
-      <div className="flex justify-end gap-4 border-t pt-4">
-        <Button type="submit" disabled={isSubmitting} className="gap-2">
-          {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
-          {isSubmitting ? "Menyimpan..." : "Simpan"}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   )
 }
