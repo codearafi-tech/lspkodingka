@@ -28,8 +28,8 @@ export default function AdminLayout() {
     <SidebarProvider>
       <AdminSidebar />
       <main className="flex min-h-screen flex-1 flex-col">
-        <header className="flex h-16 items-center border-b px-4">
-          <span className="ml-4 text-sm">{currentTitle}</span>
+        <header className="flex h-16 items-center border-b px-4 sticky top-0 bg-white">
+          <span className="ml-4 text-sm font-medium">{currentTitle}</span>
         </header>
 
         <div className="flex-1 p-8 bg-slate-50">

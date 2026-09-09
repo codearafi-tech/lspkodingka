@@ -92,10 +92,10 @@ export default function Login() {
 
   return (
     <section className="flex min-h-svh flex-col items-center justify-center bg-linear-to-br from-sky-50 via-background to-indigo-50/40 p-6">
-      <div className="flex w-full max-w-md flex-col gap-6 rounded-3xl border bg-white p-6 shadow-xs md:p-10">
+      <div className="flex w-full max-w-md flex-col gap-6 md:p-10 rounded-4xl border bg-white">
         <img
-          src="/images/Logo.png"
-          alt="LSP KODINGKA LOGO"
+          src="/images/Kredo-Logo-Only.png"
+          alt="Kredo LOGO"
           className="mx-auto h-8 w-auto object-contain"
         />
 

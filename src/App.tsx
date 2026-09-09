@@ -1,38 +1,39 @@
-import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import "./index.css";
+import { useEffect } from "react"
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom"
+import "./index.css"
 
-// Layouts
-import PublicLayout from "./components/layout/PublicLayout.tsx";
-import AdminLayout from "./components/layout/AdminLayout.tsx"; 
-import AsesiLayout from "./components/layout/AsesiLayout.tsx";
+// Protection & Layouts
+import ProtectedRoute from "./pages/auth/ProtectedRoute.tsx"
+import PublicLayout from "./components/layout/PublicLayout.tsx"
+import AdminLayout from "./components/layout/AdminLayout.tsx" 
+import AsesiLayout from "./components/layout/AsesiLayout.tsx"
 
 // Public Pages
-import Home from "./pages/public/Home";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import VerifyEmail from "./pages/auth/VerifyEmail";
+import Home from "./pages/public/Home"
+import Login from "./pages/auth/Login"
+import Register from "./pages/auth/Register"
+import VerifyEmail from "./pages/auth/VerifyEmail"
 
 // Admin Pages
-import DashboardAdmin from "./pages/admin/Dashboard"; 
-import SettingsAdmin from "./pages/admin/Settings";
+import DashboardAdmin from "./pages/admin/Dashboard" 
+import SettingsAdmin from "./pages/admin/Settings"
 
 // Asesi Pages
-import DashboardAsesi from "./pages/asesi/Dashboard";
-import SettingsAsesi from "./pages/asesi/Settings";
+import DashboardAsesi from "./pages/asesi/Dashboard"
+import SettingsAsesi from "./pages/asesi/Settings"
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname } = useLocation()
 
   useEffect(() => {
     window.scrollTo({
       top: 0,
       left: 0,
       behavior: "instant",
-    });
-  }, [pathname]);
+    })
+  }, [pathname])
 
-  return null;
+  return null
 }
 
 export function App() {
@@ -50,23 +51,27 @@ export function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* ADMIN ROUTES (Unprotected for Dev) */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<DashboardAdmin />} />
-          <Route path="settings" element={<SettingsAdmin />} />
+        {/* PROTECTED ADMIN ROUTES */}
+        <Route element={<ProtectedRoute allowedRoles={["admin", "lembaga"]} />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<DashboardAdmin />} />
+            <Route path="settings" element={<SettingsAdmin />} />
+          </Route>
         </Route>
 
-        {/* ASESI ROUTES (Unprotected for Dev) */}
-        <Route path="/asesi" element={<AsesiLayout />}>
-          <Route path="dashboard" element={<DashboardAsesi />} />
-          <Route path="settings" element={<SettingsAsesi />} />
+        {/* PROTECTED ASESI ROUTES */}
+        <Route element={<ProtectedRoute allowedRoles={["asesi"]} />}>
+          <Route path="/asesi" element={<AsesiLayout />}>
+            <Route path="dashboard" element={<DashboardAsesi />} />
+            <Route path="settings" element={<SettingsAsesi />} />
+          </Route>
         </Route>
 
         {/* FALLBACK ROUTE */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

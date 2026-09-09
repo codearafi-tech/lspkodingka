@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import axios from "axios"
+import { useState, useEffect, useRef } from "react"
+import apiClient from "@/lib/axios"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import {
 import { Upload, Save, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/toast"
 import { Separator } from "@/components/ui/separator"
+import axios from "axios"
 
 interface RegionItem {
   code: string
@@ -29,10 +30,10 @@ export default function Settings() {
     lspCode: "",
     phoneNumber: "",
     picName: "",
-    provinsi: "", // Menyimpan Code (misal: "32")
-    kota: "", // Menyimpan Code (misal: "32.74")
-    kecamatan: "", // Menyimpan Code
-    kelurahan: "", // Menyimpan Code
+    provinsi: "",
+    kota: "",
+    kecamatan: "",
+    kelurahan: "",
     alamatLengkap: "",
     logo: null as File | null,
     tandaTangan: null as File | null,
@@ -49,9 +50,79 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
-  const API_URL = import.meta.env.VITE_API_URL
+  // Ref untuk melacak URL Blob lokal yang perlu di-revoke
+  const logoBlobRef = useRef<string | null>(null)
+  const signatureBlobRef = useRef<string | null>(null)
 
-  // Helper untuk mengubah Code menjadi Name pada UI SelectValue
+  // Cleanup Object URL preview saat unmount
+  useEffect(() => {
+    return () => {
+      if (logoBlobRef.current) URL.revokeObjectURL(logoBlobRef.current)
+      if (signatureBlobRef.current)
+        URL.revokeObjectURL(signatureBlobRef.current)
+    }
+  }, [])
+
+  // 1. Ambil Presigned GET URL dari endpoint GET /user/me/uploads/{field}
+  const fetchMediaUrl = async (field: "logo" | "chairSignature") => {
+    try {
+      const res = await apiClient.get(`/user/me/uploads/${field}`, {
+        validateStatus: (status) =>
+          (status >= 200 && status < 300) || status === 404,
+      })
+
+      if (res.status === 404) return ""
+
+      return (
+        res.data?.url ||
+        res.data?.uploadUrl ||
+        (typeof res.data === "string" ? res.data : "")
+      )
+    } catch (err) {
+      console.error(`Gagal mengambil media URL untuk ${field}:`, err)
+      return ""
+    }
+  }
+
+  const uploadFileToPresignedUrl = async (
+    field: "logo" | "chairSignature",
+    file: File
+  ) => {
+    const initRes = await apiClient.post(`/user/me/uploads/${field}`, {
+      contentType: file.type,
+      sizeBytes: file.size,
+    })
+
+    const putUrl =
+      initRes.data?.uploadUrl ||
+      initRes.data?.url ||
+      (typeof initRes.data === "string" ? initRes.data : "")
+
+    // ⬇️ Tangkap key dari response step 1
+    const key = initRes.data?.key
+
+    if (!putUrl) {
+      throw new Error(`Gagal mendapatkan Upload URL untuk ${field}.`)
+    }
+    if (!key) {
+      throw new Error(`Gagal mendapatkan upload key untuk ${field}.`)
+    }
+
+    const cleanAxios = axios.create()
+    const putRes = await cleanAxios.put(putUrl, file, {
+      headers: {
+        "Content-Type": file.type,
+      },
+    })
+
+    // ⬇️ Step 3 yang hilang: tanpa ini, key tidak pernah ditempel ke profil
+    if (putRes.status !== 200) {
+      throw new Error(`Upload ke storage gagal (HTTP ${putRes.status}).`)
+    }
+
+    await apiClient.post(`/user/me/uploads/${field}/complete`, { key })
+  }
+
   const getRegionName = (list: RegionItem[], code: string) => {
     return list.find((item) => item.code === code)?.name || undefined
   }
@@ -59,19 +130,20 @@ export default function Settings() {
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true)
-      const token = localStorage.getItem("token")
-      const authHeader = { Authorization: `Bearer ${token}` }
 
       try {
-        const [provRes, profileRes] = await Promise.all([
-          axios.get(`${API_URL}/region/provinces`),
-          axios.get(`${API_URL}/user/me`, { headers: authHeader }),
-        ])
+        const [provRes, profileRes, initialLogoUrl, initialSigUrl] =
+          await Promise.all([
+            apiClient.get("/region/provinces"),
+            apiClient.get("/user/me"),
+            fetchMediaUrl("logo"),
+            fetchMediaUrl("chairSignature"),
+          ])
 
-        const provList: RegionItem[] = provRes.data.data || provRes.data
+        const provList: RegionItem[] = provRes.data?.data || provRes.data || []
         setProvinces(provList)
 
-        const profile = profileRes.data.data || profileRes.data
+        const profile = profileRes.data?.data || profileRes.data || {}
 
         setFormData((prev) => ({
           ...prev,
@@ -88,55 +160,31 @@ export default function Settings() {
           alamatLengkap: profile.addressDetail || "",
         }))
 
-        if (profile.logoKey) {
-          axios
-            .get(`${API_URL}/user/me/uploads/logo`, { headers: authHeader })
-            .then((res) =>
-              setLogoUrl(res.data.url || res.data.uploadUrl || res.data)
-            )
-            .catch((err) => console.error("Gagal mengambil URL logo:", err))
-        }
+        if (initialLogoUrl) setLogoUrl(initialLogoUrl)
+        if (initialSigUrl) setSignatureUrl(initialSigUrl)
 
-        if (profile.chairSignatureKey || profile.signatureKey) {
-          axios
-            .get(`${API_URL}/user/me/uploads/chairSignature`, {
-              headers: authHeader,
-            })
-            .then((res) =>
-              setSignatureUrl(res.data.url || res.data.uploadUrl || res.data)
-            )
-            .catch((err) =>
-              console.error("Gagal mengambil URL tanda tangan:", err)
-            )
-        }
-
-        const regionPromises = []
+        // Load hirarki wilayah bertahap berdasarkan data profil awal
+        const regionPromises: Promise<void>[] = []
 
         if (profile.province) {
           regionPromises.push(
-            axios
-              .get(
-                `${API_URL}/region/regencies?provinceCode=${profile.province}`
-              )
-              .then((res) => setRegencies(res.data.data || res.data))
+            apiClient
+              .get(`/region/regencies?provinceCode=${profile.province}`)
+              .then((res) => setRegencies(res.data?.data || res.data || []))
           )
         }
         if (profile.cityOrRegency) {
           regionPromises.push(
-            axios
-              .get(
-                `${API_URL}/region/districts?regencyCode=${profile.cityOrRegency}`
-              )
-              .then((res) => setDistricts(res.data.data || res.data))
+            apiClient
+              .get(`/region/districts?regencyCode=${profile.cityOrRegency}`)
+              .then((res) => setDistricts(res.data?.data || res.data || []))
           )
         }
         if (profile.district) {
           regionPromises.push(
-            axios
-              .get(
-                `${API_URL}/region/villages?districtCode=${profile.district}`
-              )
-              .then((res) => setVillages(res.data.data || res.data))
+            apiClient
+              .get(`/region/villages?districtCode=${profile.district}`)
+              .then((res) => setVillages(res.data?.data || res.data || []))
           )
         }
 
@@ -154,41 +202,7 @@ export default function Settings() {
     }
 
     fetchInitialData()
-  }, [API_URL])
-
-  useEffect(() => {
-    return () => {
-      if (logoUrl.startsWith("blob:")) URL.revokeObjectURL(logoUrl)
-      if (signatureUrl.startsWith("blob:")) URL.revokeObjectURL(signatureUrl)
-    }
-  }, [logoUrl, signatureUrl])
-
-  const uploadFileToPresignedUrl = async (
-    field: "logo" | "chairSignature",
-    file: File
-  ) => {
-    const token = localStorage.getItem("token")
-    const authHeader = { Authorization: `Bearer ${token}` }
-
-    const presignedRes = await axios.post(
-      `${API_URL}/user/me/uploads/${field}`,
-      {
-        contentType: file.type,
-        sizeBytes: file.size,
-      },
-      { headers: authHeader }
-    )
-
-    const uploadUrl =
-      presignedRes.data.url || presignedRes.data.uploadUrl || presignedRes.data
-
-    const cleanAxios = axios.create()
-    await cleanAxios.put(uploadUrl, file, {
-      headers: {
-        "Content-Type": file.type,
-      },
-    })
-  }
+  }, [])
 
   const handleProvinceChange = async (provinceCode: string) => {
     setFormData((prev) => ({
@@ -203,10 +217,10 @@ export default function Settings() {
     setVillages([])
 
     try {
-      const res = await axios.get(
-        `${API_URL}/region/regencies?provinceCode=${provinceCode}`
+      const res = await apiClient.get(
+        `/region/regencies?provinceCode=${provinceCode}`
       )
-      setRegencies(res.data.data || res.data)
+      setRegencies(res.data?.data || res.data || [])
     } catch (err) {
       console.error("Gagal memuat data kota:", err)
     }
@@ -223,10 +237,10 @@ export default function Settings() {
     setVillages([])
 
     try {
-      const res = await axios.get(
-        `${API_URL}/region/districts?regencyCode=${regencyCode}`
+      const res = await apiClient.get(
+        `/region/districts?regencyCode=${regencyCode}`
       )
-      setDistricts(res.data.data || res.data)
+      setDistricts(res.data?.data || res.data || [])
     } catch (err) {
       console.error("Gagal memuat data kecamatan:", err)
     }
@@ -241,10 +255,10 @@ export default function Settings() {
     setVillages([])
 
     try {
-      const res = await axios.get(
-        `${API_URL}/region/villages?districtCode=${districtCode}`
+      const res = await apiClient.get(
+        `/region/villages?districtCode=${districtCode}`
       )
-      setVillages(res.data.data || res.data)
+      setVillages(res.data?.data || res.data || [])
     } catch (err) {
       console.error("Gagal memuat data kelurahan:", err)
     }
@@ -252,6 +266,27 @@ export default function Settings() {
 
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleLogoFileChange = (file: File | null) => {
+    handleChange("logo", file)
+    if (file) {
+      if (logoBlobRef.current) URL.revokeObjectURL(logoBlobRef.current)
+      const newUrl = URL.createObjectURL(file)
+      logoBlobRef.current = newUrl
+      setLogoUrl(newUrl)
+    }
+  }
+
+  const handleSignatureFileChange = (file: File | null) => {
+    handleChange("tandaTangan", file)
+    if (file) {
+      if (signatureBlobRef.current)
+        URL.revokeObjectURL(signatureBlobRef.current)
+      const newUrl = URL.createObjectURL(file)
+      signatureBlobRef.current = newUrl
+      setSignatureUrl(newUrl)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -287,6 +322,16 @@ export default function Settings() {
     setIsSubmitting(true)
 
     try {
+      // 1. Upload file fisik langsung ke S3
+      if (formData.logo) {
+        await uploadFileToPresignedUrl("logo", formData.logo)
+      }
+
+      if (formData.tandaTangan) {
+        await uploadFileToPresignedUrl("chairSignature", formData.tandaTangan)
+      }
+
+      // 2. Update data profil
       const textData = {
         ...(formData.password.trim()
           ? { password: formData.password.trim() }
@@ -303,20 +348,33 @@ export default function Settings() {
         addressDetail: formData.alamatLengkap,
       }
 
-      await axios.patch(`${API_URL}/user/me`, textData, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+      await apiClient.patch("/user/me", textData)
 
-      if (formData.logo) {
-        await uploadFileToPresignedUrl("logo", formData.logo)
+      // 3. Refresh URL gambar resmi dari server setelah upload berhasil
+      const [newLogoUrl, newSignatureUrl] = await Promise.all([
+        fetchMediaUrl("logo"),
+        fetchMediaUrl("chairSignature"),
+      ])
+
+      if (logoBlobRef.current) {
+        URL.revokeObjectURL(logoBlobRef.current)
+        logoBlobRef.current = null
+      }
+      if (signatureBlobRef.current) {
+        URL.revokeObjectURL(signatureBlobRef.current)
+        signatureBlobRef.current = null
       }
 
-      if (formData.tandaTangan) {
-        await uploadFileToPresignedUrl("chairSignature", formData.tandaTangan)
-      }
+      if (newLogoUrl) setLogoUrl(newLogoUrl)
+      if (newSignatureUrl) setSignatureUrl(newSignatureUrl)
+
+      // Reset state file lokal dan password
+      setFormData((prev) => ({
+        ...prev,
+        password: "",
+        logo: null,
+        tandaTangan: null,
+      }))
 
       toast.add({
         type: "success",
@@ -348,16 +406,14 @@ export default function Settings() {
         <h1 className="text-xl font-semibold tracking-tight text-black">
           Pengaturan Lembaga
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Kelola akun Anda.
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">Kelola akun Anda.</p>
       </div>
       <form
         onSubmit={handleSubmit}
         className="space-y-8 rounded-xl border border-neutral-200 bg-white p-6"
       >
         <div className="space-y-10">
-          {/* 1. Informasi Akun */}
+          {/* Informasi Akun */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-1">
               <h2 className="text-base font-medium text-black">
@@ -379,7 +435,6 @@ export default function Settings() {
                   id="email"
                   disabled
                   value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
                   className="w-full bg-background"
                 />
               </div>
@@ -396,6 +451,7 @@ export default function Settings() {
                 <Input
                   id="password"
                   type="password"
+                  value={formData.password}
                   placeholder="Isi untuk mengganti"
                   onChange={(e) => handleChange("password", e.target.value)}
                   className="w-full bg-background"
@@ -406,7 +462,7 @@ export default function Settings() {
 
           <Separator />
 
-          {/* 2. Legalitas Lembaga */}
+          {/* Legalitas Lembaga */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-1">
               <h2 className="text-base font-medium text-black">Legalitas</h2>
@@ -474,7 +530,7 @@ export default function Settings() {
 
           <Separator />
 
-          {/* 3. Kontak & Alamat */}
+          {/* Kontak & Lokasi */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-1">
               <h2 className="text-base font-medium text-black">
@@ -662,7 +718,7 @@ export default function Settings() {
 
           <Separator />
 
-          {/* 4. Aset Visual */}
+          {/* Aset Visual */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-1">
               <h2 className="text-base font-medium text-black">Aset Visual</h2>
@@ -676,7 +732,7 @@ export default function Settings() {
                 <Label className="text-sm font-medium text-black">
                   Logo Lembaga
                 </Label>
-                <div className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/80 bg-muted/20 p-4 text-center transition-all hover:border-primary/50 hover:bg-muted/40">
+                <div className="relative flex min-h-40 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/80 bg-muted/20 p-4 text-center transition-all hover:border-primary/50 hover:bg-muted/40">
                   {logoUrl ? (
                     <div className="group relative flex h-32 w-full items-center justify-center rounded-lg border bg-background p-2">
                       <img
@@ -686,7 +742,7 @@ export default function Settings() {
                       />
                     </div>
                   ) : (
-                    <div className="my-6 flex flex-col items-center">
+                    <div className="my-4 flex flex-col items-center">
                       <p className="text-xs text-muted-foreground">
                         Pilih file logo
                       </p>
@@ -711,8 +767,7 @@ export default function Settings() {
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null
-                      handleChange("logo", file)
-                      if (file) setLogoUrl(URL.createObjectURL(file))
+                      handleLogoFileChange(file)
                     }}
                   />
                 </div>
@@ -723,7 +778,7 @@ export default function Settings() {
                 <Label className="text-sm font-medium text-black">
                   Tanda Tangan Ketua
                 </Label>
-                <div className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/80 bg-muted/20 p-4 text-center transition-all hover:border-primary/50 hover:bg-muted/40">
+                <div className="relative flex min-h-40 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/80 bg-muted/20 p-4 text-center transition-all hover:border-primary/50 hover:bg-muted/40">
                   {signatureUrl ? (
                     <div className="group relative flex h-32 w-full items-center justify-center rounded-lg border bg-background p-2">
                       <img
@@ -733,7 +788,7 @@ export default function Settings() {
                       />
                     </div>
                   ) : (
-                    <div className="my-6 flex flex-col items-center">
+                    <div className="my-4 flex flex-col items-center">
                       <p className="text-xs text-muted-foreground">
                         Pilih file tanda tangan
                       </p>
@@ -758,8 +813,7 @@ export default function Settings() {
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null
-                      handleChange("tandaTangan", file)
-                      if (file) setSignatureUrl(URL.createObjectURL(file))
+                      handleSignatureFileChange(file)
                     }}
                   />
                 </div>

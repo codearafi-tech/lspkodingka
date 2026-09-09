@@ -37,7 +37,7 @@ import {
   HelpCircle,
 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import axios from "axios"
+import apiClient from "@/lib/axios" // 1. Gunakan apiClient terpusat, bukan axios mentah
 
 const mainNavItems = [
   {
@@ -94,18 +94,15 @@ export function AdminSidebar() {
     email: "",
   })
 
-  const API_URL = import.meta.env.VITE_API_URL
-
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token")
       if (!token) return
 
       try {
-        const response = await axios.get(`${API_URL}/user/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        const profile = response.data.data || response.data
+        // 2. Menggunakan apiClient agar header Authorization dan interceptor bekerja
+        const response = await apiClient.get("/user/me")
+        const profile = response.data?.data || response.data
 
         setUser({
           picName: profile.picName || "",
@@ -117,7 +114,7 @@ export function AdminSidebar() {
     }
 
     fetchUserData()
-  }, [API_URL])
+  }, [])
 
   // Format Penampilan Nama PIC / Fallback
   const displayName =
@@ -130,30 +127,10 @@ export function AdminSidebar() {
   // Mengambil 1 huruf pertama dari nama
   const initialLetter = displayName ? displayName.charAt(0).toUpperCase() : "A"
 
-  // --- Logika Logout / Keluar ---
-  const handleLogout = async () => {
-    const token = localStorage.getItem("token")
-
-    if (token) {
-      try {
-        await axios.post(
-          `${API_URL}/auth/logout`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-      } catch (err) {
-        console.error(
-          "Logout di server gagal atau endpoint tidak tersedia:",
-          err
-        )
-      }
-    }
-
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
-
+  // --- Logika Logout Client-Side (Tanpa API Backend yang 404) ---
+  const handleLogout = () => {
+    localStorage.clear()
+    sessionStorage.clear()
     navigate("/login", { replace: true })
   }
 
@@ -170,7 +147,7 @@ export function AdminSidebar() {
       return (
         <SidebarMenuItem key={item.title}>
           <details className="group/collapsible" open={isSubActive}>
-            <summary className="flex w-full cursor-pointer list-none items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm transition-colors text-neutral-600 hover:bg-slate-100 hover:text-blue-600 [&::-webkit-details-marker]:hidden">
+            <summary className="flex w-full cursor-pointer list-none items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm text-neutral-600 transition-colors hover:bg-slate-100 hover:text-blue-600 [&::-webkit-details-marker]:hidden">
               <item.icon className="h-4 w-4 shrink-0" />
               <span className="flex-1 truncate">{item.title}</span>
               <ChevronRight className="ml-auto size-4 shrink-0 transition-transform duration-200 group-open/collapsible:rotate-90" />
@@ -214,9 +191,9 @@ export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
       {/* Header Statis Aplikasi */}
-      <SidebarHeader className="my-auto flex h-16 border-b justify-center px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
+      <SidebarHeader className="my-auto flex h-16 justify-center border-b px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
         <div className="flex items-center justify-between overflow-hidden">
-          <div className="flex w-28 items-center ">
+          <div className="flex w-28 items-center">
             <img src="/images/Kredo-Logo.png" alt="Kredo Logo" />
           </div>
           <div>
