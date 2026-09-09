@@ -116,7 +116,8 @@ export default function Settings() {
     })
 
     // ⬇️ Step 3 yang hilang: tanpa ini, key tidak pernah ditempel ke profil
-    if (putRes.status !== 200) {
+    // SeaweedFS/S3 bisa mengembalikan 200/201/204 untuk PUT object.
+    if (putRes.status < 200 || putRes.status >= 300) {
       throw new Error(`Upload ke storage gagal (HTTP ${putRes.status}).`)
     }
 

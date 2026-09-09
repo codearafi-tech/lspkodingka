@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import "./index.css"
 
 // Protection & Layouts
+import ErrorBoundary from "./components/ErrorBoundary.tsx"
 import ProtectedRoute from "./pages/auth/ProtectedRoute.tsx"
 import PublicLayout from "./components/layout/PublicLayout.tsx"
 import AdminLayout from "./components/layout/AdminLayout.tsx" 
@@ -41,6 +42,7 @@ export function App() {
     <BrowserRouter>
       <ScrollToTop />
 
+      <ErrorBoundary>
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route element={<PublicLayout />}>
@@ -70,6 +72,7 @@ export function App() {
         {/* FALLBACK ROUTE */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   )
 }

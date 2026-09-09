@@ -35,3 +35,4 @@ Desktop.ini
 # Build & Cache
 .cache/
 .turbo/
+*.tsbuildinfo
