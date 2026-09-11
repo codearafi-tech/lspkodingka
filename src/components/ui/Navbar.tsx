@@ -1,31 +1,40 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Menu, X, User } from "lucide-react"
+import { Menu, X, User, ChevronDown } from "lucide-react"
 import {
   NavigationMenu,
   NavigationMenuList,
   NavigationMenuItem,
   NavigationMenuLink,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 
+// Data list skema untuk sub-menu
+const schemesList = [
+  { title: "Asistant Web Developer", href: "/skema/1" },
+  { title: "Digital Marketing", href: "/skema/2" },
+  { title: "Teknisi Operator Komputer", href: "/skema/3" },
+  { title: "Network Desainer", href: "/skema/4" },
+  { title: "Data Scientist", href: "/skema/5" },
+  { title: "Data Analyst", href: "/skema/6" },
+  { title: "Desainer Grafis Muda", href: "/skema/7" },
+  { title: "Public Speaking", href: "/skema/8" },
+]
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isMobileSkemaOpen, setIsMobileSkemaOpen] = useState(false)
   const [token, setToken] = useState<string | null>(null)
   const [dashboardUrl, setDashboardUrl] = useState<string>("/login")
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
 
-  // Cek scroll posisi untuk merubah appearance navbar
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
-      }
+      setIsScrolled(window.scrollY > 20)
     }
-
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -36,41 +45,25 @@ export default function Navbar() {
 
     if (storedToken) {
       const userRole = localStorage.getItem("role")?.toLowerCase()
-
-      if (userRole === "lembaga") {
-        setDashboardUrl("/admin/dashboard")
-      } else if (userRole === "asesor") {
-        setDashboardUrl("/asesor/dashboard")
-      } else {
-        setDashboardUrl("/asesi/dashboard")
-      }
+      if (userRole === "lembaga") setDashboardUrl("/admin/dashboard")
+      else if (userRole === "asesor") setDashboardUrl("/asesor/dashboard")
+      else setDashboardUrl("/asesi/dashboard")
     }
   }, [location])
 
   useEffect(() => {
     setIsOpen(false)
+    setIsMobileSkemaOpen(false)
   }, [location.pathname])
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "unset"
   }, [isOpen])
-
-  const navLinks = [
-    { name: "Beranda", href: "/" },
-    { name: "Skema", href: "/skema" },
-    { name: "Cek Sertifikat", href: "/cek-sertifikat" },
-    { name: "Tentang Kami", href: "/tentang" },
-    { name: "Artikel", href: "/artikel" },
-  ]
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 z-50 w-full px-6 md:px-12 lg:px-20 py-4 transition-all duration-300 ${
+        className={`fixed top-0 left-0 z-50 w-full px-6 py-4 transition-all duration-300 md:px-12 lg:px-20 ${
           isOpen ? "hidden md:block" : "block"
         } ${
           isScrolled
@@ -79,8 +72,8 @@ export default function Navbar() {
         }`}
       >
         <div className="flex items-center justify-between gap-8 md:gap-12">
-          {/* 1. KIRI: Logo */}
-          <div className="flex items-center shrink-0">
+          {/* Logo */}
+          <div className="flex shrink-0 items-center">
             <Link to="/" className="relative z-50">
               <img
                 src="/images/Kodingka-Logo.png"
@@ -92,37 +85,122 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* 2. TENGAH: Menu Navigasi */}
-          <div className="hidden items-center justify-center flex-1 md:flex">
+          {/* Desktop Navigation */}
+          <div className="hidden flex-1 items-center justify-center md:flex">
             <NavigationMenu>
-              <NavigationMenuList className="flex items-center justify-center gap-6 lg:gap-14">
-                {navLinks.map((link) => {
-                  const isActive = location.pathname === link.href
-                  return (
-                    <NavigationMenuItem key={link.href}>
-                      <NavigationMenuLink
-                        className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent ${
-                          isScrolled
-                            ? isActive
-                              ? "font-medium text-black"
-                              : "text-neutral-600 hover:text-black"
-                            : isActive
-                            ? "font-medium text-white"
-                            : "text-white/80 hover:text-white"
-                        }`}
-                        href={link.href}
+              <NavigationMenuList className="flex items-center justify-center gap-6 lg:gap-10">
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
+                      isScrolled
+                        ? location.pathname === "/"
+                          ? "font-medium text-black"
+                          : "text-neutral-600 hover:text-black"
+                        : location.pathname === "/"
+                          ? "font-medium text-white"
+                          : "text-white/80 hover:text-white"
+                    }`}
+                    href="/"
+                  >
+                    Beranda
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                {/* Dropdown Menu Skema */}
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger
+                    className={`bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-active:bg-transparent ${
+                      isScrolled
+                        ? location.pathname.startsWith("/skema")
+                          ? "font-medium text-black"
+                          : "text-neutral-600 hover:text-black"
+                        : location.pathname.startsWith("/skema")
+                          ? "font-medium text-white"
+                          : "text-white/80 hover:text-white"
+                    }`}
+                  >
+                    Skema
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent >
+                    <div className="grid w-100 gap-2 p-4 md:w-125 md:grid-cols-2">
+                      {/* Sub-menu items */}
+                      {schemesList.map((scheme) => (
+                        <Link
+                          key={scheme.href}
+                          to={scheme.href}
+                          className="rounded-md p-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+                        >
+                          {scheme.title}
+                        </Link>
+                      ))}
+
+                      {/* Button Lihat Semua Skema di paling bawah */}
+                      <Link
+                        to="/skema"
+                        className="col-span-2 mt-2 rounded-md bg-transparent border p-2.5 text-center text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
                       >
-                        {link.name}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  )
-                })}
+                        Lihat Semua Skema →
+                      </Link>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
+                      isScrolled
+                        ? location.pathname === "/cek-sertifikat"
+                          ? "font-medium text-black"
+                          : "text-neutral-600 hover:text-black"
+                        : location.pathname === "/cek-sertifikat"
+                          ? "font-medium text-white"
+                          : "text-white/80 hover:text-white"
+                    }`}
+                    href="/cek-sertifikat"
+                  >
+                    Cek Sertifikat
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
+                      isScrolled
+                        ? location.pathname === "/tentang"
+                          ? "font-medium text-black"
+                          : "text-neutral-600 hover:text-black"
+                        : location.pathname === "/tentang"
+                          ? "font-medium text-white"
+                          : "text-white/80 hover:text-white"
+                    }`}
+                    href="/tentang"
+                  >
+                    Tentang Kami
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
+                      isScrolled
+                        ? location.pathname === "/artikel"
+                          ? "font-medium text-black"
+                          : "text-neutral-600 hover:text-black"
+                        : location.pathname === "/artikel"
+                          ? "font-medium text-white"
+                          : "text-white/80 hover:text-white"
+                    }`}
+                    href="/artikel"
+                  >
+                    Artikel
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
 
-          {/* 3. KANAN: Button Desktop */}
-          <div className="hidden items-center justify-end gap-3 shrink-0 md:flex">
+          {/* Button Desktop */}
+          <div className="hidden shrink-0 items-center justify-end gap-3 md:flex">
             {token ? (
               <Link
                 to={dashboardUrl}
@@ -140,8 +218,8 @@ export default function Navbar() {
                 to="/login"
                 className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${
                   isScrolled
-                    ? "bg-transparent border text-neutral-900 hover:bg-primary hover:text-white"
-                    : "bg-transparent border text-white hover:bg-white hover:text-neutral-900"
+                    ? "border bg-transparent text-neutral-900 hover:bg-primary hover:text-white"
+                    : "border bg-transparent text-white hover:bg-white hover:text-neutral-900"
                 }`}
               >
                 Masuk
@@ -149,7 +227,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Trigger & Login Button */}
+          {/* Mobile Trigger */}
           <div className="flex items-center gap-2 md:hidden">
             {token ? (
               <Link
@@ -202,7 +280,7 @@ export default function Navbar() {
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed top-0 left-0 z-50 flex h-full w-[75%] max-w-xs flex-col justify-between bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 left-0 z-50 flex h-full w-[80%] max-w-xs flex-col justify-between overflow-y-auto bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out md:hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -222,23 +300,85 @@ export default function Navbar() {
             </button>
           </div>
 
-          <div className="flex flex-col space-y-4">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.href
-              return (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={`py-2 font-medium transition-colors ${
-                    isActive
-                      ? "font-semibold text-black"
-                      : "text-neutral-700 hover:text-blue-600"
+          <div className="flex flex-col space-y-3">
+            <Link
+              to="/"
+              className={`py-2 font-medium transition-colors ${
+                location.pathname === "/"
+                  ? "font-semibold text-black"
+                  : "text-neutral-700"
+              }`}
+            >
+              Beranda
+            </Link>
+
+            {/* Accordion / Collapsible Skema di Mobile */}
+            <div>
+              <button
+                onClick={() => setIsMobileSkemaOpen(!isMobileSkemaOpen)}
+                className="flex w-full items-center justify-between py-2 font-medium text-neutral-700"
+              >
+                <span>Skema</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isMobileSkemaOpen ? "rotate-180" : ""
                   }`}
-                >
-                  {link.name}
-                </Link>
-              )
-            })}
+                />
+              </button>
+
+              {isMobileSkemaOpen && (
+                <div className="ml-3 flex flex-col space-y-2 border-l-2 border-neutral-200 pt-1 pl-3">
+                  {schemesList.map((scheme) => (
+                    <Link
+                      key={scheme.href}
+                      to={scheme.href}
+                      className="py-1 text-sm text-neutral-600 hover:text-black"
+                    >
+                      {scheme.title}
+                    </Link>
+                  ))}
+                  <Link
+                    to="/skema"
+                    className="pt-2 text-sm font-semibold text-blue-600"
+                  >
+                    Lihat Semua Skema →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <Link
+              to="/cek-sertifikat"
+              className={`py-2 font-medium transition-colors ${
+                location.pathname === "/cek-sertifikat"
+                  ? "font-semibold text-black"
+                  : "text-neutral-700"
+              }`}
+            >
+              Cek Sertifikat
+            </Link>
+
+            <Link
+              to="/tentang"
+              className={`py-2 font-medium transition-colors ${
+                location.pathname === "/tentang"
+                  ? "font-semibold text-black"
+                  : "text-neutral-700"
+              }`}
+            >
+              Tentang Kami
+            </Link>
+
+            <Link
+              to="/artikel"
+              className={`py-2 font-medium transition-colors ${
+                location.pathname === "/artikel"
+                  ? "font-semibold text-black"
+                  : "text-neutral-700"
+              }`}
+            >
+              Artikel
+            </Link>
           </div>
         </div>
       </div>

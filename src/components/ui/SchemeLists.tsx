@@ -201,7 +201,7 @@ export default function SchemeLists() {
             >
               <Link
                 to={`/scheme/${scheme.id}`}
-                className="group relative flex aspect-auto flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50 p-5 text-slate-900 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 hover:bg-white hover:shadow-xl sm:p-6 md:aspect-3/4"
+                className="group relative flex aspect-auto flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50 p-5 text-slate-900  transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 hover:bg-white hover:shadow-xs sm:p-6 md:aspect-3/4"
               >
                 {/* Header Card */}
                 <div className="flex items-start justify-between">
