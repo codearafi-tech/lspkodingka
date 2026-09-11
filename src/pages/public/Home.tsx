@@ -25,9 +25,11 @@ export default function Test() {
             industri.
           </p>
           <div className="mt-4 w-fit">
-            <Button variant="secondary" size="lg">
-              Eksplor skema
-              <ChevronRight className="h-4 w-4" />
+            <Button variant="secondary" size="lg" >
+              <a href="#schemes" className="flex items-center gap-2">
+                Eksplor skema
+                <ChevronRight className="h-4 w-4" />
+              </a>
             </Button>
           </div>
         </div>
@@ -110,20 +112,23 @@ export default function Test() {
           </div>
         </div>
       </section>
+
       {/* Certification Process */}
       <CertificationProcess />
 
-      {/* Sceheme List */}
-      <SchemeLists />
+      {/* Scheme List dengan Target Anchor ID */}
+      <div id="schemes" className="scroll-mt-10">
+        <SchemeLists />
+      </div>
 
       {/* Contact */}
-      <section className="relative overflow-hidden bg-[url('/images/banner-2.webp')] bg-cover bg-position-[center_top_30%] px-6 py-16 md:px-20 md:py-32">
+      <section className="relative overflow-hidden bg-[url('/images/Scenery.webp')] bg-cover bg-position-[center_top_30%] px-6 py-16 md:px-20 md:py-32">
         {/* Overlay Gelap untuk Meningkatkan Kontras Teks */}
         <div className="absolute inset-0 bg-slate-900/40" />
 
         <div className="relative z-10 flex flex-col">
           {/* Subtitle / Category */}
-          <span className="text-xs font-semibold tracking-widest text-neutral-100 uppercase md:text-sm">
+          <span className="text-sm font-medium tracking-widest text-neutral-300 uppercase">
             KEMITRAAN & PERTANYAAN
           </span>
 
@@ -143,7 +148,7 @@ export default function Test() {
             >
               <span className="flex items-center gap-2">
                 Konsultasi sekarang
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="h-4 w-4" />
               </span>
             </a>
           </div>
