@@ -14,6 +14,7 @@ import Home from "./pages/public/Home"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import VerifyEmail from "./pages/auth/VerifyEmail"
+import Test from "./pages/public/test"
 
 // Admin Pages
 import DashboardAdmin from "./pages/admin/Dashboard" 
@@ -47,6 +48,7 @@ export function App() {
         {/* PUBLIC ROUTES */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/test" element={<Test />} />
         </Route>
 
         <Route path="/login" element={<Login />} />

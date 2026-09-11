@@ -323,7 +323,7 @@ export default function Settings() {
     setIsSubmitting(true)
 
     try {
-      // 1. Upload file fisik langsung ke S3
+      // 1. Upload file fisik langsung ke S3 jika ada
       if (formData.logo) {
         await uploadFileToPresignedUrl("logo", formData.logo)
       }
@@ -332,11 +332,8 @@ export default function Settings() {
         await uploadFileToPresignedUrl("chairSignature", formData.tandaTangan)
       }
 
-      // 2. Update data profil
+      // 2. Update data profil tanpa membawa field password
       const textData = {
-        ...(formData.password.trim()
-          ? { password: formData.password.trim() }
-          : {}),
         institutionName: formData.institutionName,
         lspType: formData.lspType,
         lspCode: formData.lspCode,
@@ -349,9 +346,10 @@ export default function Settings() {
         addressDetail: formData.alamatLengkap,
       }
 
+      // Menggunakan HTTP PATCH
       await apiClient.patch("/user/me", textData)
 
-      // 3. Refresh URL gambar resmi dari server setelah upload berhasil
+      // 3. Refresh URL gambar dari server
       const [newLogoUrl, newSignatureUrl] = await Promise.all([
         fetchMediaUrl("logo"),
         fetchMediaUrl("chairSignature"),
@@ -369,10 +367,9 @@ export default function Settings() {
       if (newLogoUrl) setLogoUrl(newLogoUrl)
       if (newSignatureUrl) setSignatureUrl(newSignatureUrl)
 
-      // Reset state file lokal dan password
+      // Reset state file lokal
       setFormData((prev) => ({
         ...prev,
-        password: "",
         logo: null,
         tandaTangan: null,
       }))
