@@ -6,9 +6,17 @@ import CertificationProcess from "@/components/ui/CertificationProcess"
 import SchemeLists from "@/components/ui/SchemeLists"
 
 export default function Test() {
+  // Fungsi penanganan scroll halus ke element target
+  const scrollToSchemes = () => {
+    const element = document.getElementById("schemes")
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
   return (
     // parent container
-    <div className="flex w-full flex-col gap-10 md:gap-14">
+    <div className="flex w-full flex-col gap-16 md:gap-20">
       {/* Hero Section */}
       <section className="relative flex min-h-svh flex-col justify-end gap-8 bg-[url('/images/Hero-banner.webp')] bg-cover bg-center px-6 py-10 text-white md:justify-center md:px-20 md:py-0">
         <div className="absolute inset-0 bg-black/40" />
@@ -21,22 +29,25 @@ export default function Test() {
           </h1>
           <p className="max-w-xl text-sm md:text-base">
             Kami adalah lembaga sertifikasi profesional yang berkomitmen untuk
-            memvalidasi keahlian dan kompetensi Anda dalam berbagai bidang
-            industri.
+            pengembangan sumber daya manusia di bidang teknologi digital.
           </p>
           <div className="mt-4 w-fit">
-            <Button variant="secondary" size="lg" >
-              <a href="#schemes" className="flex items-center gap-2">
-                Eksplor skema
-                <ChevronRight className="h-4 w-4" />
-              </a>
+            {/* Menggunakan onClick langsung pada Button */}
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={scrollToSchemes}
+              className="flex cursor-pointer items-center gap-2"
+            >
+              Eksplor skema
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </section>
 
       {/* Partners */}
-      <section className="px-6 md:px-20 md:py-0">
+      <section className="px-6 md:px-20">
         <div className="text-sm tracking-widest text-muted-foreground">
           DIPERCAYA OLEH BERBAGAI INSTITUSI
         </div>
@@ -44,7 +55,7 @@ export default function Test() {
       </section>
 
       {/* Reasons */}
-      <section className="px-6 py-12 md:px-20 md:py-20">
+      <section className="px-6 md:px-20">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <h2 className="max-w-lg text-3xl leading-tight font-medium tracking-tight md:text-5xl">
             Kami menjadi pilihan tepat bagi Anda
@@ -64,7 +75,7 @@ export default function Test() {
         </div>
 
         {/* Grid Layout Fix */}
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
           {/* Item 1 */}
           <div className="space-y-2">
             <h3 className="text-xl font-medium tracking-tight">
@@ -116,29 +127,25 @@ export default function Test() {
       {/* Certification Process */}
       <CertificationProcess />
 
-      {/* Scheme List dengan Target Anchor ID */}
+      {/* Scheme List dengan Target ID */}
       <div id="schemes" className="scroll-mt-10">
         <SchemeLists />
       </div>
 
       {/* Contact */}
       <section className="relative overflow-hidden bg-[url('/images/Scenery.webp')] bg-cover bg-position-[center_top_30%] px-6 py-16 md:px-20 md:py-32">
-        {/* Overlay Gelap untuk Meningkatkan Kontras Teks */}
         <div className="absolute inset-0 bg-slate-900/40" />
 
         <div className="relative z-10 flex flex-col">
-          {/* Subtitle / Category */}
           <span className="text-sm font-medium tracking-widest text-neutral-300 uppercase">
             KEMITRAAN & PERTANYAAN
           </span>
 
-          {/* Description Text */}
           <p className="mt-3 max-w-2xl text-xl leading-tight text-white md:text-3xl">
             Punya pertanyaan atau ingin bekerja sama? Konsultasikan langsung
             dengan tim kami di bawah ini.
           </p>
 
-          {/* CTA Button */}
           <div className="mt-8 flex w-full">
             <a
               href="https://wa.me/6285316261399?text=Halo%20LSP%20KODINGKA,%20saya%20masih%20ragu%20dan%20ingin%20konsultasi%20tentang%20skema%20sertifikasi."

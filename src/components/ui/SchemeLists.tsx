@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 const schemesData = [
   {
     id: 1,
-    title: "Asistant Web Developer",
+    title: "Asisten Web Developer",
     category: "okupasi",
     categoryLabel: "Okupasi",
     units: "6 Unit",
@@ -16,7 +16,7 @@ const schemesData = [
   },
   {
     id: 2,
-    title: "Digital Marketing",
+    title: "AI Digital Marketing",
     category: "klaster",
     categoryLabel: "Klaster",
     units: "7 Unit",
@@ -56,7 +56,7 @@ const schemesData = [
   },
   {
     id: 6,
-    title: "Data Analyst",
+    title: "Data Analis",
     category: "okupasi",
     categoryLabel: "Okupasi",
     units: "8 Unit",
@@ -86,7 +86,7 @@ const schemesData = [
   },
   {
     id: 9,
-    title: "Content Creator",
+    title: "AI Content Creator",
     category: "klaster",
     categoryLabel: "Klaster",
     units: "9 Unit",
@@ -122,7 +122,7 @@ export default function SchemeLists() {
       : schemesData.filter((item) => item.category === selectedCategory)
 
   return (
-    <section className="px-6 py-12 md:px-20">
+    <section className="px-6 md:px-20 ">
       {/* Header Section */}
       <div className="mb-8 flex flex-col items-center justify-between gap-4">
         <div>
@@ -211,7 +211,7 @@ export default function SchemeLists() {
                     </span>
                     {scheme.isPopular && (
                       <span className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-semibold text-blue-700">
-                        Popular
+                        Populer
                       </span>
                     )}
                   </div>

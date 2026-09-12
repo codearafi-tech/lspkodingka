@@ -11,7 +11,7 @@ export default function Footer() {
                 {/* Kolom 1: Logo & Slogan (Mengambil 5 Kolom) */}
                 <div className="md:col-span-5 space-y-6">
                     <h4 className="text-2xl md:text-3xl tracking-tight font-medium text-neutral-900 leading-snug">
-                        Validasi keahlianmu <br /> bersama kami
+                        Validasi keahlian Anda <br /> melalui kami
                     </h4>
                     <p className="text-sm text-neutral-600 max-w-sm">
                         Lembaga Sertifikasi Profesi terpercaya untuk memastikan kompetensi kerja yang berstandar industri.

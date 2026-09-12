@@ -121,8 +121,8 @@ export default function Navbar() {
                   >
                     Skema
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent >
-                    <div className="grid w-100 gap-2 p-4 md:w-125 md:grid-cols-2">
+                  <NavigationMenuContent>
+                    <div className="grid w-100 gap-2 p-4 md:w-125 md:grid-cols-2 ">
                       {/* Sub-menu items */}
                       {schemesList.map((scheme) => (
                         <Link
