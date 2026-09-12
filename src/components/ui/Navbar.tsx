@@ -31,6 +31,13 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
 
+  // Tentukan halaman yang memakai tema navbar terang (putih + teks hitam) sejak awal
+  const isLightHeaderPage =
+    location.pathname === "/tentang-kami" || location.pathname === "/artikel"
+
+  // Navbar menggunakan gaya terang jika di-scroll ATAU sedang berada di halaman berlatar terang
+  const isLightMode = isScrolled || isLightHeaderPage
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
@@ -66,7 +73,7 @@ export default function Navbar() {
         className={`fixed top-0 left-0 z-50 w-full px-6 py-4 transition-all duration-300 md:px-12 lg:px-20 ${
           isOpen ? "hidden md:block" : "block"
         } ${
-          isScrolled
+          isLightMode
             ? "bg-white text-neutral-900 shadow-xs"
             : "border-transparent bg-transparent text-white"
         }`}
@@ -79,7 +86,7 @@ export default function Navbar() {
                 src="/images/Kodingka-Logo.png"
                 alt="LSP Koding"
                 className={`h-auto w-40 transition-all duration-300 ${
-                  !isScrolled && "brightness-0 invert"
+                  !isLightMode && "brightness-0 invert"
                 }`}
               />
             </Link>
@@ -92,7 +99,7 @@ export default function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuLink
                     className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
-                      isScrolled
+                      isLightMode
                         ? location.pathname === "/"
                           ? "font-medium text-black"
                           : "text-neutral-600 hover:text-black"
@@ -110,7 +117,7 @@ export default function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger
                     className={`bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-active:bg-transparent ${
-                      isScrolled
+                      isLightMode
                         ? location.pathname.startsWith("/skema")
                           ? "font-medium text-black"
                           : "text-neutral-600 hover:text-black"
@@ -122,7 +129,7 @@ export default function Navbar() {
                     Skema
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid w-100 gap-2 p-4 md:w-125 md:grid-cols-2 ">
+                    <div className="grid w-100 gap-2 p-4 md:w-125 md:grid-cols-2">
                       {/* Sub-menu items */}
                       {schemesList.map((scheme) => (
                         <Link
@@ -137,7 +144,7 @@ export default function Navbar() {
                       {/* Button Lihat Semua Skema di paling bawah */}
                       <Link
                         to="/skema"
-                        className="col-span-2 mt-2 rounded-md bg-transparent border p-2.5 text-center text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
+                        className="col-span-2 mt-2 rounded-md border bg-transparent p-2.5 text-center text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
                       >
                         Lihat Semua Skema →
                       </Link>
@@ -148,7 +155,7 @@ export default function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuLink
                     className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
-                      isScrolled
+                      isLightMode
                         ? location.pathname === "/cek-sertifikat"
                           ? "font-medium text-black"
                           : "text-neutral-600 hover:text-black"
@@ -165,15 +172,15 @@ export default function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuLink
                     className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
-                      isScrolled
-                        ? location.pathname === "/tentang"
+                      isLightMode
+                        ? location.pathname === "/tentang-kami"
                           ? "font-medium text-black"
                           : "text-neutral-600 hover:text-black"
-                        : location.pathname === "/tentang"
+                        : location.pathname === "/tentang-kami"
                           ? "font-medium text-white"
                           : "text-white/80 hover:text-white"
                     }`}
-                    href="/tentang"
+                    href="/tentang-kami"
                   >
                     Tentang Kami
                   </NavigationMenuLink>
@@ -182,7 +189,7 @@ export default function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuLink
                     className={`${navigationMenuTriggerStyle()} bg-transparent px-0 text-base transition-colors hover:bg-transparent focus:bg-transparent data-active:bg-transparent ${
-                      isScrolled
+                      isLightMode
                         ? location.pathname === "/artikel"
                           ? "font-medium text-black"
                           : "text-neutral-600 hover:text-black"
@@ -205,7 +212,7 @@ export default function Navbar() {
               <Link
                 to={dashboardUrl}
                 className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-                  isScrolled
+                  isLightMode
                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
                     : "bg-white text-neutral-900 hover:bg-primary/90"
                 }`}
@@ -217,7 +224,7 @@ export default function Navbar() {
               <Link
                 to="/login"
                 className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${
-                  isScrolled
+                  isLightMode
                     ? "border bg-transparent text-neutral-900 hover:bg-primary hover:text-white"
                     : "border bg-transparent text-white hover:bg-white hover:text-neutral-900"
                 }`}
@@ -233,7 +240,7 @@ export default function Navbar() {
               <Link
                 to={dashboardUrl}
                 className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium ${
-                  isScrolled
+                  isLightMode
                     ? "bg-primary text-primary-foreground"
                     : "bg-white text-neutral-900"
                 }`}
@@ -245,7 +252,7 @@ export default function Navbar() {
               <Link
                 to="/login"
                 className={`rounded-full px-4 py-2 text-sm font-medium ${
-                  isScrolled
+                  isLightMode
                     ? "bg-secondary text-neutral-900"
                     : "bg-white text-neutral-900"
                 }`}
@@ -256,7 +263,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsOpen(true)}
               className={`relative z-50 rounded-lg p-2 transition-colors ${
-                isScrolled
+                isLightMode
                   ? "text-neutral-700 hover:bg-neutral-100"
                   : "text-white hover:bg-white/10"
               }`}
@@ -359,9 +366,9 @@ export default function Navbar() {
             </Link>
 
             <Link
-              to="/tentang"
+              to="/tentang-kami"
               className={`py-2 font-medium transition-colors ${
-                location.pathname === "/tentang"
+                location.pathname === "/tentang-kami"
                   ? "font-semibold text-black"
                   : "text-neutral-700"
               }`}

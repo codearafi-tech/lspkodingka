@@ -12,6 +12,7 @@ import AsesiLayout from "./components/layout/AsesiLayout.tsx"
 // Public Pages
 import Home from "./pages/public/Home"
 import Login from "./pages/auth/Login"
+import TentangKami from "./pages/public/TentangKami.tsx"
 import Register from "./pages/auth/Register"
 import VerifyEmail from "./pages/auth/VerifyEmail"
 
@@ -48,6 +49,7 @@ export function App() {
         {/* PUBLIC ROUTES */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="tentang-kami" element={<TentangKami />} />
         </Route>
 
         <Route path="/login" element={<Login />} />
