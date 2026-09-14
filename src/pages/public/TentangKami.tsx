@@ -126,7 +126,7 @@ export default function TentangKami() {
             return (
               <div
                 key={index}
-                className="group relative flex h-80 max-w-70 min-w-[70%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-2xl bg-neutral-100 p-6 transition-all duration-300 md:h-80 md:max-w-none md:min-w-0 md:p-8 md:hover:bg-brand md:hover:shadow-xl"
+                className="group relative flex h-80 max-w-70 min-w-[70%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-2xl bg-neutral-50 p-6 transition-all duration-300 md:h-80 md:max-w-none md:min-w-0 md:p-8 md:hover:bg-brand md:hover:shadow-xl"
               >
                 {/* Ikon Bagian Atas */}
                 <div className="flex items-start">
@@ -158,7 +158,7 @@ export default function TentangKami() {
         {/* Prakata Pemimpin Section */}
         <section>
           {/* Mobile: flex-col-reverse (Foto atas, Teks bawah). Desktop: grid-cols-12 */}
-          <div className="flex flex-col-reverse overflow-hidden bg-neutral-100 lg:grid lg:grid-cols-12">
+          <div className="flex flex-col-reverse overflow-hidden bg-neutral-50 lg:grid lg:grid-cols-12">
             {/* Sisi Kiri / Bawah di Mobile: Kutipan & Profil */}
             <div className="flex flex-col justify-between p-8 md:p-14 lg:col-span-7">
               <div className="flex flex-col gap-6">

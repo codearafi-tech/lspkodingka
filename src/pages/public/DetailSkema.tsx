@@ -46,69 +46,88 @@ export default function DetailSkema() {
   return (
     <section className="flex min-h-screen flex-col gap-12">
       {/* 2. Banner / Header */}
-      <header className="w-full bg-brand px-6 pt-28 pb-12 text-white md:px-20">
-        <div className="mx-auto max-w-6xl">
-          <Link
-            to={`/#skema-${scheme.slug}`}
-            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-white/80 transition-colors hover:text-white md:mb-6"
-          >
-            <ArrowLeft className="h-4 w-4" /> Kembali
-          </Link>
+     <header className="relative w-full overflow-hidden bg-brand px-6 pt-28 pb-12 text-white md:px-20">
+  {/* ===== ELEMENT BACKGROUND DEKORATIF ===== */}
+  {/* 1. Subtle Radial Glow (Efek cahaya lembut) */}
+  <div className="pointer-events-none absolute -top-24 -left-20 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+  <div className="pointer-events-none absolute top-1/2 -right-20 h-80 w-80 -translate-y-1/2 rounded-full bg-white/5 blur-2xl" />
 
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="mb-3 flex items-center gap-2">
-                <span className="rounded-lg bg-white/15 px-2.5 py-1 text-xs font-semibold tracking-wide text-white uppercase backdrop-blur-sm">
-                  {scheme.categoryLabel}
-                </span>
-                <span className="text-xs text-white/40">•</span>
-                <span className="text-xs font-medium text-white/80">
-                  {scheme.units}
-                </span>
-              </div>
+  {/* 2. Grid Pattern (Motif kotak-kotak halus) */}
+  <div 
+    className="pointer-events-none absolute inset-0 opacity-10"
+    style={{
+      backgroundImage: `radial-gradient(circle, #ffffff 1px, transparent 1px)`,
+      backgroundSize: '24px 24px'
+    }}
+  />
 
-              <h1 className="text-3xl font-medium text-white md:text-4xl">
-                {scheme.title}
-              </h1>
+  {/* 3. Decorative Abstract Waves/Circles (Lingkaran pemanis di pojok) */}
+  <div className="pointer-events-none absolute -bottom-10 right-1/3 h-64 w-64 rounded-full border border-white/10" />
+  <div className="pointer-events-none absolute -bottom-20 right-1/3 h-96 w-96 rounded-full border border-white/5" />
+  {/* ========================================= */}
 
-              <p className="mt-2 text-sm text-white/70">
-                Kode Skema:{" "}
-                <span className="font-mono font-semibold text-white">
-                  {scheme.kodeSkema}
-                </span>
-              </p>
-            </div>
+  <div className="relative z-10 mx-auto max-w-6xl">
+    <Link
+      to={`/#skema-${scheme.slug}`}
+      className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-white/80 transition-colors hover:text-white md:mb-6"
+    >
+      <ArrowLeft className="h-4 w-4" /> Kembali
+    </Link>
 
-            {/* Box Harga & Info Ringkas */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg md:min-w-64">
-              <span className="text-xs font-medium text-neutral-500">
-                Biaya Investasi
-              </span>
-              <div className="my-1 text-2xl font-semibold text-brand">
-                {scheme.price}
-              </div>
+    <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <span className="rounded-lg bg-white/15 px-2.5 py-1 text-xs font-medium tracking-wide text-white backdrop-blur-sm">
+            {scheme.categoryLabel}
+          </span>
+          <span className="text-xs text-white/40">•</span>
+          <span className="text-xs font-medium text-white/80">
+            {scheme.units}
+          </span>
+        </div>
 
-              <div className="my-3 border-t border-slate-100" />
+        <h1 className="text-3xl font-medium text-white md:text-4xl">
+          {scheme.title}
+        </h1>
 
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-500">Status:</span>
-                  <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-                    Tersedia
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-500">Metode:</span>
-                  <span className="font-semibold text-neutral-700">
-                    Luring / Daring
-                  </span>
-                </div>
-              </div>
-            </div>
+        <p className="mt-2 text-sm text-white/70">
+          Kode Skema:{" "}
+          <span className="font-mono font-semibold text-white">
+            {scheme.kodeSkema}
+          </span>
+        </p>
+      </div>
+
+      {/* Box Harga & Info Ringkas */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg md:min-w-64">
+        <span className="text-xs font-medium text-neutral-500">
+          Biaya Investasi
+        </span>
+        <div className="my-1 text-2xl font-semibold text-brand">
+          {scheme.price}
+        </div>
+
+        <div className="my-3 border-t border-slate-100" />
+
+        <div className="flex flex-col gap-2.5 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-neutral-500">Status:</span>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+              Tersedia
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-neutral-500">Metode:</span>
+            <span className="font-semibold text-neutral-700">
+              Luring / Daring
+            </span>
           </div>
         </div>
-      </header>
+      </div>
+    </div>
+  </div>
+</header>
 
       {/* 3. Main Content */}
       <main className="grid w-full grid-cols-1 gap-6 px-6 md:px-12 lg:grid-cols-3 lg:px-20">

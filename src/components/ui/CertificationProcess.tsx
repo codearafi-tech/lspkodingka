@@ -178,7 +178,7 @@ export default function CertificationProcess() {
                   dominantBaseline={dominantBaseline}
                   fill={isActive ? "#ffffff" : "#FFFFFF90"}
                   fontSize={isMobile ? "30" : "24"}
-                  fontWeight={isActive ? "bold" : "500"}
+                  fontWeight={isActive ? "semibold" : "500"}
                   className="transition-colors duration-300 group-hover:fill-white"
                 >
                   <tspan opacity="0.6">{item.step}. </tspan>
@@ -197,7 +197,7 @@ export default function CertificationProcess() {
             fill="#FFFFFF"
             fontSize={isMobile ? "22" : "16"}
             letterSpacing="4"
-            fontWeight="bold"
+            fontWeight="semibold"
           >
             PROSES SERTIFIKASI
           </text>
