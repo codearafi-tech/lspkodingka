@@ -2,109 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { ArrowUpRight, BookOpen, Layers } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-
-const schemesData = [
-  {
-    id: 1,
-    title: "Asisten Web Developer",
-    category: "okupasi",
-    categoryLabel: "Okupasi",
-    units: "6 Unit",
-    price: "Rp1.000.000",
-    image: "images/Asistant Web Developer.webp",
-    isPopular: true,
-  },
-  {
-    id: 2,
-    title: "AI Digital Marketing",
-    category: "klaster",
-    categoryLabel: "Klaster",
-    units: "7 Unit",
-    price: "Rp800.000",
-    image: "images/Digital Marketing.webp",
-    isPopular: true,
-  },
-  {
-    id: 3,
-    title: "Teknisi Operator Komputer",
-    category: "okupasi",
-    categoryLabel: "Okupasi",
-    units: "8 Unit",
-    price: "Rp800.000",
-    image: "images/Teknisi Operator Komputer.webp",
-    isPopular: true,
-  },
-  {
-    id: 4,
-    title: "Network Desainer",
-    category: "okupasi",
-    categoryLabel: "Okupasi",
-    units: "11 Unit",
-    price: "Rp1.500.000",
-    image: "images/Network Desainer.webp",
-    isPopular: false,
-  },
-  {
-    id: 5,
-    title: "Data Scientist",
-    category: "okupasi",
-    categoryLabel: "Okupasi",
-    units: "11 Unit",
-    price: "Rp1.500.000",
-    image: "images/Data Scientist.webp",
-    isPopular: false,
-  },
-  {
-    id: 6,
-    title: "Data Analis",
-    category: "okupasi",
-    categoryLabel: "Okupasi",
-    units: "8 Unit",
-    price: "Rp1.000.000",
-    image: "images/Data Analyst.webp",
-    isPopular: false,
-  },
-  {
-    id: 7,
-    title: "Desainer Grafis Muda",
-    category: "okupasi",
-    categoryLabel: "Okupasi",
-    units: "8 Unit",
-    price: "Rp900.000",
-    image: "images/Desainer Grafis.webp",
-    isPopular: false,
-  },
-  {
-    id: 8,
-    title: "Public Speaking",
-    category: "klaster",
-    categoryLabel: "Klaster",
-    units: "8 Unit",
-    price: "Rp500.000",
-    image: "images/Public Speaking.webp",
-    isPopular: false,
-  },
-  {
-    id: 9,
-    title: "AI Content Creator",
-    category: "klaster",
-    categoryLabel: "Klaster",
-    units: "9 Unit",
-    price: "Rp800.000",
-    image: "images/Content Creator.webp",
-    isPopular: false,
-  },
-  {
-    id: 10,
-    title: "Video Editor",
-    category: "okupasi",
-    categoryLabel: "Okupasi",
-    units: "11 Unit",
-    price: "Rp950.000",
-    image: "images/Video Editor.webp",
-    isPopular: false,
-  },
-]
+import { schemesData } from "../../lib/skemaData"
 
 const categories = [
   { id: "all", label: "SEMUA" },
@@ -200,7 +98,8 @@ export default function SchemeLists() {
               transition={{ duration: 0.25 }}
             >
               <Link
-                to={`/scheme/${scheme.id}`}
+                to={`/skema/${scheme.slug}`}
+                id={`skema-${scheme.slug}`}
                 className="group relative flex aspect-auto flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50 p-5 text-slate-900  transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 hover:bg-white hover:shadow-xs sm:p-6 md:aspect-3/4"
               >
                 {/* Header Card */}

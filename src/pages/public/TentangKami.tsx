@@ -1,10 +1,5 @@
-import {
-  ChevronRight,
-  TrendingUp,
-  ShieldCheck,
-  Users,
-  Lightbulb,
-} from "lucide-react"
+import { TrendingUp, ShieldCheck, Users, Lightbulb } from "lucide-react"
+import CTA from "@/components/ui/CTA"
 
 const misiList = [
   "Menyelenggarakan sertifikasi kompetensi di bidang koding, kecerdasan artifisial, dan teknologi digital secara profesional, objektif, transparan, dan akuntabel sesuai ketentuan Badan Nasional Sertifikasi Profesi (BNSP).",
@@ -48,7 +43,7 @@ export default function TentangKami() {
   return (
     <div className="flex w-full flex-col gap-16 md:gap-20">
       {/* Hero Section */}
-      <section className="flex flex-col justify-between gap-12 px-6 pt-36 md:flex-row md:items-center md:px-20">
+      <section className="flex flex-col justify-between gap-12 px-6 pt-30 md:flex-row md:items-center md:px-20">
         {/* Sisi Kiri: Teks & Deskripsi */}
         <div className="flex flex-col gap-6 md:w-1/2">
           <div className="text-sm tracking-widest text-muted-foreground uppercase">
@@ -125,13 +120,13 @@ export default function TentangKami() {
         </div>
 
         {/* Grid 4 Kartu Tujuan */}
-        <div className="flex w-full snap-x snap-mandatory scrollbar-none gap-4 overflow-x-auto pb-4 md:grid md:grid-cols-4 md:gap-6 md:pb-0">
+        <div className="flex w-full snap-x snap-mandatory scrollbar-none gap-4 overflow-x-auto md:grid md:grid-cols-4 md:gap-6">
           {tujuanAsosiasi.map((item, index) => {
             const IconComponent = item.icon
             return (
               <div
                 key={index}
-                className="group relative flex h-auto max-w-70 min-w-[70%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-2xl bg-neutral-100 p-6 transition-all duration-300 md:h-80 md:max-w-none md:min-w-0 md:p-8 md:hover:bg-brand md:hover:shadow-xl"
+                className="group relative flex h-80 max-w-70 min-w-[70%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-2xl bg-neutral-100 p-6 transition-all duration-300 md:h-80 md:max-w-none md:min-w-0 md:p-8 md:hover:bg-brand md:hover:shadow-xl"
               >
                 {/* Ikon Bagian Atas */}
                 <div className="flex items-start">
@@ -141,14 +136,14 @@ export default function TentangKami() {
                 </div>
 
                 {/* Bagian Bawah: Judul & Deskripsi */}
-                <div className="mt-6 flex flex-col justify-end md:mt-0">
-                  <h3 className="text-base leading-snug font-semibold tracking-tight text-neutral-900 transition-colors duration-300 md:text-xl md:group-hover:text-white">
+                <div className="mt-8 flex flex-col justify-end md:mt-0">
+                  <h3 className="text-lg leading-snug font-semibold tracking-tight text-neutral-900 transition-colors duration-300 md:text-xl md:group-hover:text-white">
                     {item.title}
                   </h3>
 
                   {/* Deskripsi: Tampil penuh di Mobile, Animasi Hover di Desktop */}
                   <div className="mt-2 block md:mt-0 md:grid md:grid-rows-[0fr] md:opacity-0 md:transition-all md:duration-300 md:ease-in-out md:group-hover:mt-3 md:group-hover:grid-rows-[1fr] md:group-hover:opacity-100">
-                    <p className="text-xs leading-relaxed text-neutral-600 md:overflow-hidden md:text-sm md:text-neutral-300">
+                    <p className="text-sm leading-relaxed text-neutral-600 md:overflow-hidden md:text-sm md:text-neutral-300">
                       {item.description}
                     </p>
                   </div>
@@ -180,8 +175,8 @@ export default function TentangKami() {
                 </p>
               </div>
 
-              <div className="mt-8 flex flex-col gap-1 border-l-2 border-brand pl-4">
-                <h4 className="text-lg font-bold text-neutral-900">Romadani</h4>
+              <div className="mt-8 flex flex-col gap-1 border-l-2 border-neutral-300 pl-4">
+                <h4 className="text-lg font-bold text-brand">Romadani</h4>
                 <p className="text-sm text-neutral-500">
                   Direktur LSP KODINGKA
                 </p>
@@ -209,35 +204,7 @@ export default function TentangKami() {
           </div>
         </section>
 
-        {/* Contact */}
-        <section className="relative overflow-hidden bg-[url('/images/Scenery.webp')] bg-cover bg-position-[center_top_30%] px-6 py-16 md:px-20 md:py-32">
-          <div className="absolute inset-0 bg-slate-900/40" />
-
-          <div className="relative z-10 flex flex-col">
-            <span className="text-sm font-medium tracking-widest text-neutral-300 uppercase">
-              KEMITRAAN & PERTANYAAN
-            </span>
-
-            <p className="mt-3 max-w-2xl text-xl leading-tight text-white md:text-3xl">
-              Punya pertanyaan atau ingin bekerja sama? Konsultasikan langsung
-              dengan tim kami di bawah ini.
-            </p>
-
-            <div className="mt-8 flex w-full">
-              <a
-                href="https://wa.me/6285316261399?text=Halo%20LSP%20KODINGKA,%20saya%20masih%20ragu%20dan%20ingin%20konsultasi%20tentang%20skema%20sertifikasi."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-white px-2.5 py-2 text-sm font-medium transition-all duration-300 hover:bg-neutral-100 md:text-base"
-              >
-                <span className="flex items-center gap-2">
-                  Konsultasi sekarang
-                  <ChevronRight className="h-4 w-4" />
-                </span>
-              </a>
-            </div>
-          </div>
-        </section>
+        <CTA />
       </div>
     </div>
   )

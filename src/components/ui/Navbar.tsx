@@ -11,16 +11,17 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 
-// Data list skema untuk sub-menu
 const schemesList = [
-  { title: "Asistant Web Developer", href: "/skema/1" },
-  { title: "Digital Marketing", href: "/skema/2" },
-  { title: "Teknisi Operator Komputer", href: "/skema/3" },
-  { title: "Network Desainer", href: "/skema/4" },
-  { title: "Data Scientist", href: "/skema/5" },
-  { title: "Data Analyst", href: "/skema/6" },
-  { title: "Desainer Grafis Muda", href: "/skema/7" },
-  { title: "Public Speaking", href: "/skema/8" },
+  { title: "Asisten Web Developer", href: "/skema/asisten-web-developer" },
+  { title: "AI Digital Marketing", href: "/skema/ai-digital-marketing" },
+  { title: "Teknisi Operator Komputer", href: "/skema/teknisi-operator-komputer" },
+  { title: "Network Desainer", href: "/skema/network-desainer" },
+  { title: "Data Scientist", href: "/skema/data-scientist" },
+  { title: "Data Analis", href: "/skema/data-analis" },
+  { title: "Desainer Grafis Muda", href: "/skema/desainer-grafis-muda" },
+  { title: "Public Speaking", href: "/skema/public-speaking" },
+  { title: "AI Content Creator", href: "/skema/ai-content-creator" },
+  { title: "Video Editor", href: "/skema/video-editor" },
 ]
 
 export default function Navbar() {
@@ -30,12 +31,13 @@ export default function Navbar() {
   const [dashboardUrl, setDashboardUrl] = useState<string>("/login")
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
+  const lightPages = ["/tentang-kami", "/artikel"]
 
-  // Tentukan halaman yang memakai tema navbar terang (putih + teks hitam) sejak awal
+  // Tentukan halaman yang memakai tema navbar terang
   const isLightHeaderPage =
-    location.pathname === "/tentang-kami" || location.pathname === "/artikel"
+    location.pathname !== "/" &&
+    lightPages.some((path) => location.pathname.startsWith(path))
 
-  // Navbar menggunakan gaya terang jika di-scroll ATAU sedang berada di halaman berlatar terang
   const isLightMode = isScrolled || isLightHeaderPage
 
   useEffect(() => {
@@ -130,7 +132,6 @@ export default function Navbar() {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="grid w-100 gap-2 p-4 md:w-125 md:grid-cols-2">
-                      {/* Sub-menu items */}
                       {schemesList.map((scheme) => (
                         <Link
                           key={scheme.href}
@@ -140,14 +141,6 @@ export default function Navbar() {
                           {scheme.title}
                         </Link>
                       ))}
-
-                      {/* Button Lihat Semua Skema di paling bawah */}
-                      <Link
-                        to="/skema"
-                        className="col-span-2 mt-2 rounded-md border bg-transparent p-2.5 text-center text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
-                      >
-                        Lihat Semua Skema →
-                      </Link>
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -344,12 +337,6 @@ export default function Navbar() {
                       {scheme.title}
                     </Link>
                   ))}
-                  <Link
-                    to="/skema"
-                    className="pt-2 text-sm font-semibold text-blue-600"
-                  >
-                    Lihat Semua Skema →
-                  </Link>
                 </div>
               )}
             </div>
