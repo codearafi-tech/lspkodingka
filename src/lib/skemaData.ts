@@ -264,6 +264,7 @@ export const schemesData = [
     price: "Rp1.500.000",
     image: "images/Data Scientist.webp",
     isPopular: false,
+    isNew: true,
     kodeSkema: "SKM/LSP-KODINGKA/DS/005",
     deskripsi:
       "Sertifikasi keahlian dalam mengolah data kompleks, membangun algoritma pemodelan Machine Learning, hingga memberikan wawasan bisnis strategis.",
@@ -323,6 +324,7 @@ export const schemesData = [
     price: "Rp1.000.000",
     image: "images/Data Analyst.webp",
     isPopular: false,
+    isNew: true,
     kodeSkema: "SKM/LSP-KODINGKA/DA/006",
     deskripsi:
       "Mengukur kompetensi dalam mengekstraksi data, mengolah spreadsheet/database, serta menyajikan dashboard visualisasi data interaktif.",
@@ -414,6 +416,7 @@ export const schemesData = [
     price: "Rp500.000",
     image: "images/Public Speaking.webp",
     isPopular: false,
+    isNew: true,
     kodeSkema: "SKM/LSP-KODINGKA/PS/008",
     deskripsi:
       "Pengujian kemampuan komunikasi lisan di depan umum, teknik presentasi persuasif, penyusunan struktur materi, serta penanganan audiens.",
@@ -467,6 +470,7 @@ export const schemesData = [
     price: "Rp800.000",
     image: "images/Content Creator.webp",
     isPopular: false,
+    isNew: true,
     kodeSkema: "SKM/LSP-KODINGKA/CC-AI/009",
     deskripsi:
       "Sertifikasi keahlian produksi konten multi-platform (skrip, visual, audio, dan video) memanfaatkan tools kecerdasan artifisial secara efisien.",
@@ -518,6 +522,7 @@ export const schemesData = [
     price: "Rp950.000",
     image: "images/Video Editor.webp",
     isPopular: false,
+    isNew: true,
     kodeSkema: "SKM/LSP-KODINGKA/VE/010",
     deskripsi:
       "Mengukur standar pengeditan video komersial, pemotongan footage, color grading, tata suara (sound design), hingga ekspor format sesuai standar penyiaran.",

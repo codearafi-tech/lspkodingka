@@ -16,6 +16,7 @@ import TentangKami from "./pages/public/TentangKami.tsx"
 import Register from "./pages/auth/Register"
 import VerifyEmail from "./pages/auth/VerifyEmail"
 import DetailSkema from "./pages/public/DetailSkema.tsx"
+import Test from "./pages/public/Test.tsx"
 
 
 // Admin Pages
@@ -52,6 +53,8 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="tentang-kami" element={<TentangKami />} />
           <Route path="/skema/:slug" element={<DetailSkema />} />
+          <Route path="/test" element={<Test />} />
+
         </Route>
 
         <Route path="/login" element={<Login />} />

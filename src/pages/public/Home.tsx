@@ -38,7 +38,7 @@ export default function Test() {
               variant="secondary"
               size="lg"
               onClick={scrollToSchemes}
-              className="flex cursor-pointer items-center gap-2"
+              className="flex cursor-pointer items-center gap-2 bg-white hover:bg-white/90"
             >
               Eksplor skema
               <ChevronRight className="h-4 w-4" />
